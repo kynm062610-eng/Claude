@@ -14,6 +14,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 import analysis
+import storage
 from youtube_client import YouTubeClient
 
 load_dotenv()
@@ -137,6 +138,14 @@ def render_pattern_analysis(df: pd.DataFrame):
     if df.empty:
         return
     with st.expander("📊 傾向分析(似た動画の企画ヒント)"):
+        insights = analysis.growth_insights(df)
+        if insights:
+            st.markdown("**📈 伸びている動画の共通点(推定)**")
+            for line in insights:
+                st.markdown(f"- {line}")
+            st.caption("※ データ上の相関から見える傾向であり、断定はできません。")
+            st.divider()
+
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("**タイトルの頻出ワード**")
@@ -295,13 +304,68 @@ with tab_trend:
 # ----------------------------------------------------------------------
 with tab_competitor:
     st.subheader("競合チャンネルの分析")
+
+    saved_competitors = storage.load_competitors()
+
+    st.markdown("**登録済みの競合チャンネル**")
+    if saved_competitors:
+        for c in saved_competitors:
+            row_l, row_r = st.columns([5, 1.2])
+            row_l.write(f"📌 {c['title']}")
+            if row_r.button("削除", key=f"remove_{c['channel_id']}"):
+                storage.remove_competitor(c["channel_id"])
+                st.rerun()
+        st.caption(
+            "※ この一覧はアプリが稼働している間だけ保持されます。"
+            "アプリの再起動・更新でリセットされる場合があります。"
+        )
+    else:
+        st.caption("まだ登録がありません。下でチャンネルを分析し、「💾 保存」で追加できます。")
+
+    if len(saved_competitors) >= 2:
+        combined_max = st.slider(
+            "各チャンネルから取得する動画数", 5, 30, 15, key="competitor_combined_max"
+        )
+        if st.button("🔍 登録済み競合をまとめて分析(共通点を探す)", key="competitor_combined_run"):
+            with st.spinner(f"{len(saved_competitors)}チャンネル分のデータを取得しています..."):
+                all_videos = []
+                for c in saved_competitors:
+                    all_videos.extend(client.get_channel_videos(c["channel_id"], combined_max))
+                combined_df = videos_to_df(all_videos)
+            if combined_df.empty:
+                st.info("動画が取得できませんでした。")
+            else:
+                st.markdown(
+                    f"**{len(saved_competitors)}チャンネル・{len(combined_df)}本から見える共通点**"
+                )
+                render_video_table(combined_df)
+                render_pattern_analysis(combined_df)
+
+    st.divider()
+    st.markdown("**新しいチャンネルを分析する**")
     competitor_query = st.text_input(
         "競合チャンネルID / @ハンドル / チャンネル名", key="competitor_query",
         placeholder="例: @CompetitorChannel",
     )
     max_videos_competitor = st.slider("取得する動画数", 5, 50, 20, key="competitor_max")
 
-    if st.button("分析する", key="competitor_run") and competitor_query:
+    analyze_col, save_col = st.columns(2)
+    run_clicked = analyze_col.button("分析する", key="competitor_run")
+    save_clicked = save_col.button("💾 このチャンネルを保存", key="competitor_save")
+
+    if save_clicked and competitor_query:
+        with st.spinner("チャンネルを確認しています..."):
+            channel_id = client.resolve_channel_id(competitor_query)
+            if not channel_id:
+                st.error("チャンネルが見つかりませんでした。")
+            else:
+                stats = client.get_channel_stats(channel_id)
+                title = stats.title if stats else competitor_query
+                storage.add_competitor(channel_id, title, competitor_query)
+                st.success(f"「{title}」を登録済み競合チャンネルに保存しました。")
+                st.rerun()
+
+    if run_clicked and competitor_query:
         with st.spinner("データを取得しています..."):
             channel_id = client.resolve_channel_id(competitor_query)
             if not channel_id:
