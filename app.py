@@ -17,7 +17,30 @@ from youtube_client import YouTubeClient
 
 load_dotenv()
 
-st.set_page_config(page_title="YouTube分析ダッシュボード", page_icon="📊", layout="wide")
+if "mobile_mode" not in st.session_state:
+    st.session_state.mobile_mode = False
+
+st.set_page_config(
+    page_title="YouTube分析ダッシュボード",
+    page_icon="📊",
+    layout="centered" if st.session_state.mobile_mode else "wide",
+)
+
+if st.session_state.mobile_mode:
+    st.markdown(
+        """
+        <style>
+        html, body, [class*="css"] { font-size: 18px !important; }
+        .stButton>button, .stTextInput input, .stSelectbox div[data-baseweb="select"],
+        .stSlider, .stTabs [data-baseweb="tab"] { font-size: 17px !important; }
+        .stButton>button { padding: 0.7rem 1rem !important; width: 100%; }
+        div[data-testid="stMetric"] { padding: .5rem 0; }
+        div[data-testid="column"] { min-width: 100% !important; flex: 1 1 100% !important; }
+        div[data-testid="stDataFrame"] { font-size: 15px !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 @st.cache_resource
@@ -91,7 +114,14 @@ def render_pattern_analysis(df: pd.DataFrame):
                     st.caption(color)
 
 
-st.title("📊 YouTube視聴者データ・トレンド分析ツール")
+title_col, toggle_col = st.columns([4, 1.4])
+with title_col:
+    st.title("📊 YouTube視聴者データ・トレンド分析ツール")
+with toggle_col:
+    st.session_state.mobile_mode = st.toggle(
+        "📱 スマホ表示", value=st.session_state.mobile_mode,
+        help="文字を大きくし、横並びの表示を縦に並べ替えて見やすくします",
+    )
 
 api_key = os.environ.get("YOUTUBE_API_KEY", "")
 with st.sidebar:
