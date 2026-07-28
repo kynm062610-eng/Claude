@@ -1,4 +1,4 @@
-"""YouTube視聴者データ・トレンド分析ダッシュボード。
+"""YouTube競合・視聴者・トレンド分析ツール。
 
 起動方法:
     streamlit run app.py
@@ -18,11 +18,13 @@ from youtube_client import YouTubeClient
 
 load_dotenv()
 
+APP_TITLE = "YouTube競合・視聴者・トレンド分析ツール"
+
 if "mobile_mode" not in st.session_state:
-    st.session_state.mobile_mode = False
+    st.session_state.mobile_mode = True
 
 st.set_page_config(
-    page_title="YouTube分析ダッシュボード",
+    page_title=APP_TITLE,
     page_icon="📊",
     layout="centered" if st.session_state.mobile_mode else "wide",
 )
@@ -32,6 +34,7 @@ if st.session_state.mobile_mode:
         """
         <style>
         html, body, [class*="css"] { font-size: 18px !important; }
+        h1 { font-size: 1.35rem !important; line-height: 1.4 !important; }
         .stButton>button, .stTextInput input, .stSelectbox div[data-baseweb="select"],
         .stSlider, .stTabs [data-baseweb="tab"] { font-size: 17px !important; }
         .stButton>button { padding: 0.7rem 1rem !important; width: 100%; }
@@ -173,14 +176,11 @@ def render_pattern_analysis(df: pd.DataFrame):
                     st.caption(color)
 
 
-title_col, toggle_col = st.columns([4, 1.4])
-with title_col:
-    st.title("📊 YouTube視聴者データ・トレンド分析ツール")
-with toggle_col:
-    st.session_state.mobile_mode = st.toggle(
-        "📱 スマホ表示", value=st.session_state.mobile_mode,
-        help="文字を大きくし、横並びの表示を縦に並べ替えて見やすくします",
-    )
+st.title(f"📊 {APP_TITLE}")
+st.session_state.mobile_mode = st.toggle(
+    "📱 スマホ表示(文字を大きく・縦並びにする)",
+    value=st.session_state.mobile_mode,
+)
 
 def _default_api_key() -> str:
     try:
