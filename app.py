@@ -123,13 +123,26 @@ with toggle_col:
         help="文字を大きくし、横並びの表示を縦に並べ替えて見やすくします",
     )
 
-api_key = os.environ.get("YOUTUBE_API_KEY", "")
+def _default_api_key() -> str:
+    try:
+        if "YOUTUBE_API_KEY" in st.secrets:
+            return st.secrets["YOUTUBE_API_KEY"]
+    except Exception:  # noqa: BLE001
+        pass
+    return os.environ.get("YOUTUBE_API_KEY", "")
+
+
+api_key = _default_api_key()
 with st.sidebar:
     st.header("設定")
-    api_key_input = st.text_input(
-        "YouTube Data API キー", value=api_key, type="password",
-        help=".env の YOUTUBE_API_KEY からも読み込めます",
-    )
+    if api_key:
+        st.success("APIキーは登録済みです(Secretsから読み込み)")
+        api_key_input = api_key
+    else:
+        api_key_input = st.text_input(
+            "YouTube Data API キー", type="password",
+            help="毎回入力したくない場合は、Streamlit CloudのSecretsに YOUTUBE_API_KEY を登録してください",
+        )
     st.caption("キーは Google Cloud Console から取得できます。")
 
 if not api_key_input:
