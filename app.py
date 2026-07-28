@@ -12,6 +12,7 @@ import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 
+import analysis
 from youtube_client import YouTubeClient
 
 load_dotenv()
@@ -39,6 +40,55 @@ def render_video_table(df: pd.DataFrame):
     show = df[["title", "channel_title", "view_count", "like_count", "comment_count", "published_at"]].copy()
     show.columns = ["タイトル", "チャンネル", "再生数", "高評価数", "コメント数", "投稿日"]
     st.dataframe(show, use_container_width=True, hide_index=True)
+
+
+@st.cache_data(show_spinner=False)
+def cached_dominant_color(thumbnail_url: str) -> str | None:
+    return analysis.dominant_color(thumbnail_url)
+
+
+def render_pattern_analysis(df: pd.DataFrame):
+    """タイトル・タグ・ハッシュタグ・サムネイル色の傾向をまとめて表示する。"""
+    if df.empty:
+        return
+    with st.expander("📊 傾向分析(似た動画の企画ヒント)"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**タイトルの頻出ワード**")
+            words = analysis.title_word_frequency(df["title"].tolist())
+            if words:
+                word_df = pd.DataFrame(words, columns=["ワード", "回数"]).set_index("ワード")
+                st.bar_chart(word_df)
+            else:
+                st.caption("集計できるワードがありませんでした。")
+        with col2:
+            st.markdown("**頻出タグ**")
+            tags = analysis.tag_frequency(df["tags"].tolist())
+            if tags:
+                tag_df = pd.DataFrame(tags, columns=["タグ", "回数"]).set_index("タグ")
+                st.bar_chart(tag_df)
+            else:
+                st.caption("タグを公開している動画がありませんでした。")
+
+        hashtags = analysis.hashtag_frequency(df["description"].tolist())
+        if hashtags:
+            st.markdown("**概要欄の頻出ハッシュタグ**")
+            st.write(" ".join(f"`{tag}`({count})" for tag, count in hashtags))
+
+        st.markdown("**上位動画のサムネイル代表色**")
+        top_thumbs = df.head(8)
+        swatch_cols = st.columns(max(len(top_thumbs), 1))
+        for col, (_, row) in zip(swatch_cols, top_thumbs.iterrows()):
+            with col:
+                if row["thumbnail_url"]:
+                    st.image(row["thumbnail_url"], use_container_width=True)
+                color = cached_dominant_color(row["thumbnail_url"])
+                if color:
+                    st.markdown(
+                        f'<div style="background:{color};height:22px;border-radius:4px;"></div>',
+                        unsafe_allow_html=True,
+                    )
+                    st.caption(color)
 
 
 st.title("📊 YouTube視聴者データ・トレンド分析ツール")
@@ -98,6 +148,7 @@ with tab_own:
 
                     st.markdown("**動画一覧(再生数順)**")
                 render_video_table(df)
+                render_pattern_analysis(df)
 
 # ----------------------------------------------------------------------
 # トレンド調査
@@ -126,14 +177,16 @@ with tab_trend:
                 by_channel = df.groupby("channel_title")["view_count"].sum().sort_values(ascending=False).head(10)
                 st.bar_chart(by_channel)
             render_video_table(df)
+            render_pattern_analysis(df)
 
     st.divider()
     st.subheader("急上昇動画(地域別)")
     region = st.selectbox("地域", ["JP", "US", "KR", "GB"], key="popular_region")
     if st.button("急上昇動画を見る", key="popular_run"):
         with st.spinner("取得しています..."):
-            videos = client.get_most_popular(region_code=region, max_results=25)
-            render_video_table(videos_to_df(videos))
+            popular_df = videos_to_df(client.get_most_popular(region_code=region, max_results=25))
+            render_video_table(popular_df)
+            render_pattern_analysis(popular_df)
 
 # ----------------------------------------------------------------------
 # 競合チャンネル分析
@@ -165,3 +218,4 @@ with tab_competitor:
                     chart_df = df.sort_values("published_at").set_index("published_at")["view_count"]
                     st.line_chart(chart_df)
                 render_video_table(df)
+                render_pattern_analysis(df)

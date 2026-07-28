@@ -23,6 +23,8 @@ class VideoStats:
     like_count: int
     comment_count: int
     thumbnail_url: str = ""
+    description: str = ""
+    tags: list[str] = field(default_factory=list)
 
     @property
     def url(self) -> str:
@@ -187,4 +189,6 @@ class YouTubeClient:
             like_count=int(stats.get("likeCount", 0)),
             comment_count=int(stats.get("commentCount", 0)),
             thumbnail_url=snippet.get("thumbnails", {}).get("medium", {}).get("url", ""),
+            description=snippet.get("description", ""),
+            tags=list(snippet.get("tags", [])),
         )
