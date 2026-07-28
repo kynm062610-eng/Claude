@@ -6,6 +6,7 @@
 事前に .env に YOUTUBE_API_KEY を設定してください(.env.example 参照)。
 """
 
+import html
 import os
 
 import pandas as pd
@@ -56,13 +57,71 @@ def videos_to_df(videos) -> pd.DataFrame:
     return df.sort_values("view_count", ascending=False)
 
 
+def format_count_ja(n) -> str:
+    """100000 -> '10万' のように日本語の桁単位で読みやすくする。"""
+    try:
+        n = int(n)
+    except (TypeError, ValueError):
+        return "-"
+
+    def trim(v: float) -> str:
+        s = f"{v:.1f}"
+        return s[:-2] if s.endswith(".0") else s
+
+    if n >= 100_000_000:
+        return f"{trim(n / 100_000_000)}億"
+    if n >= 10_000:
+        return f"{trim(n / 10_000)}万"
+    return f"{n:,}"
+
+
+_VIDEO_CARD_CSS = """
+<style>
+.yt-card {
+    display:flex; gap:12px; align-items:flex-start;
+    padding:10px 4px; border-bottom:1px solid rgba(128,128,128,.25);
+    text-decoration:none; color:inherit;
+}
+.yt-card:hover { background: rgba(128,128,128,.08); }
+.yt-card-thumb {
+    width:128px; height:72px; object-fit:cover; border-radius:8px;
+    flex:none; background:rgba(128,128,128,.2);
+}
+.yt-card-title { font-weight:600; font-size:.95rem; line-height:1.35; }
+.yt-card-channel { font-size:.8rem; opacity:.65; margin-top:3px; }
+.yt-card-stats { font-size:.8rem; opacity:.85; margin-top:3px; font-variant-numeric: tabular-nums; }
+</style>
+"""
+
+
 def render_video_table(df: pd.DataFrame):
+    """動画をタップするとYouTubeで開けるカード一覧として表示する。"""
     if df.empty:
         st.info("該当する動画が見つかりませんでした。")
         return
-    show = df[["title", "channel_title", "view_count", "like_count", "comment_count", "published_at"]].copy()
-    show.columns = ["タイトル", "チャンネル", "再生数", "高評価数", "コメント数", "投稿日"]
-    st.dataframe(show, use_container_width=True, hide_index=True)
+
+    cards = [_VIDEO_CARD_CSS]
+    for _, row in df.iterrows():
+        video_id = html.escape(str(row.get("video_id", "")), quote=True)
+        url = f"https://www.youtube.com/watch?v={video_id}"
+        title = html.escape(str(row.get("title", "")))
+        channel = html.escape(str(row.get("channel_title", "")))
+        thumb = html.escape(str(row.get("thumbnail_url", "")), quote=True)
+        views = format_count_ja(row.get("view_count", 0))
+        likes = format_count_ja(row.get("like_count", 0))
+        comments = format_count_ja(row.get("comment_count", 0))
+        published = pd.to_datetime(row.get("published_at")).strftime("%Y/%m/%d")
+        thumb_html = f'<img class="yt-card-thumb" src="{thumb}">' if thumb else '<div class="yt-card-thumb"></div>'
+        cards.append(f'''
+<a class="yt-card" href="{url}" target="_blank" rel="noopener">
+  {thumb_html}
+  <div style="min-width:0;">
+    <div class="yt-card-title">{title}</div>
+    <div class="yt-card-channel">{channel}</div>
+    <div class="yt-card-stats">▶ {views}回 ・ 👍 {likes} ・ 💬 {comments} ・ {published}</div>
+  </div>
+</a>''')
+    st.markdown("".join(cards), unsafe_allow_html=True)
 
 
 @st.cache_data(show_spinner=False)
@@ -178,9 +237,9 @@ with tab_own:
             else:
                 stats = client.get_channel_stats(channel_id)
                 col1, col2, col3 = st.columns(3)
-                col1.metric("登録者数", f"{stats.subscriber_count:,}")
-                col2.metric("総再生回数", f"{stats.view_count:,}")
-                col3.metric("動画数", f"{stats.video_count:,}")
+                col1.metric("登録者数", f"{format_count_ja(stats.subscriber_count)}人")
+                col2.metric("総再生回数", f"{format_count_ja(stats.view_count)}回")
+                col3.metric("動画数", f"{stats.video_count:,}本")
 
                 videos = client.get_channel_videos(channel_id, max_videos_own)
                 df = videos_to_df(videos)
@@ -250,9 +309,9 @@ with tab_competitor:
             else:
                 stats = client.get_channel_stats(channel_id)
                 col1, col2, col3 = st.columns(3)
-                col1.metric("登録者数", f"{stats.subscriber_count:,}")
-                col2.metric("総再生回数", f"{stats.view_count:,}")
-                col3.metric("動画数", f"{stats.video_count:,}")
+                col1.metric("登録者数", f"{format_count_ja(stats.subscriber_count)}人")
+                col2.metric("総再生回数", f"{format_count_ja(stats.view_count)}回")
+                col3.metric("動画数", f"{stats.video_count:,}本")
 
                 videos = client.get_channel_videos(channel_id, max_videos_competitor)
                 df = videos_to_df(videos)
