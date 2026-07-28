@@ -6,14 +6,17 @@
 事前に .env に YOUTUBE_API_KEY を設定してください(.env.example 参照)。
 """
 
+import datetime as dt
 import html
 import os
+import re
 
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 
 import analysis
+import report
 import storage
 from youtube_client import YouTubeClient
 
@@ -185,6 +188,34 @@ def render_pattern_analysis(df: pd.DataFrame):
                     st.caption(color)
 
 
+def render_download_section(df: pd.DataFrame, label: str, key: str):
+    """分析結果をiPhoneの「ファイル」アプリなどに保存できるダウンロードボタン。"""
+    if df.empty:
+        return
+    stamp = dt.datetime.now().strftime("%Y%m%d_%H%M")
+    safe_label = re.sub(r"[^\w\-]", "_", label)[:40]
+
+    st.markdown("**💾 分析結果を保存**")
+    col_txt, col_csv = st.columns(2)
+    col_txt.download_button(
+        "📄 レポート(テキスト)",
+        data=report.build_text_report(df, label).encode("utf-8"),
+        file_name=f"{safe_label}_{stamp}.txt",
+        mime="text/plain",
+        key=f"dl_txt_{key}",
+        use_container_width=True,
+    )
+    col_csv.download_button(
+        "📊 一覧(CSV)",
+        data=("﻿" + report.build_csv(df)).encode("utf-8"),
+        file_name=f"{safe_label}_{stamp}.csv",
+        mime="text/csv",
+        key=f"dl_csv_{key}",
+        use_container_width=True,
+    )
+    st.caption("保存先を「ファイル」アプリに選ぶと、iPhone内に残せます。")
+
+
 st.title(f"📊 {APP_TITLE}")
 st.session_state.mobile_mode = st.toggle(
     "📱 スマホ表示(文字を大きく・縦並びにする)",
@@ -260,6 +291,7 @@ with tab_own:
                     st.markdown("**動画一覧(再生数順)**")
                 render_video_table(df)
                 render_pattern_analysis(df)
+                render_download_section(df, f"自分のチャンネル_{stats.title}", "own")
 
 # ----------------------------------------------------------------------
 # トレンド調査
@@ -289,6 +321,7 @@ with tab_trend:
                 st.bar_chart(by_channel)
             render_video_table(df)
             render_pattern_analysis(df)
+            render_download_section(df, f"トレンド調査_{keyword}", "trend")
 
     st.divider()
     st.subheader("急上昇動画(地域別)")
@@ -298,6 +331,7 @@ with tab_trend:
             popular_df = videos_to_df(client.get_most_popular(region_code=region, max_results=25))
             render_video_table(popular_df)
             render_pattern_analysis(popular_df)
+            render_download_section(popular_df, f"急上昇動画_{region}", "popular")
 
 # ----------------------------------------------------------------------
 # 競合チャンネル分析
@@ -340,6 +374,7 @@ with tab_competitor:
                 )
                 render_video_table(combined_df)
                 render_pattern_analysis(combined_df)
+                render_download_section(combined_df, "競合まとめ分析", "combined")
 
     st.divider()
     st.markdown("**新しいチャンネルを分析する**")
@@ -385,3 +420,4 @@ with tab_competitor:
                     st.line_chart(chart_df)
                 render_video_table(df)
                 render_pattern_analysis(df)
+                render_download_section(df, f"競合_{stats.title}", "competitor")
