@@ -195,25 +195,62 @@ def render_download_section(df: pd.DataFrame, label: str, key: str):
     stamp = dt.datetime.now().strftime("%Y%m%d_%H%M")
     safe_label = re.sub(r"[^\w\-]", "_", label)[:40]
 
-    st.markdown("**💾 分析結果を保存**")
-    col_txt, col_csv = st.columns(2)
-    col_txt.download_button(
-        "📄 レポート(テキスト)",
-        data=report.build_text_report(df, label).encode("utf-8"),
-        file_name=f"{safe_label}_{stamp}.txt",
-        mime="text/plain",
-        key=f"dl_txt_{key}",
-        use_container_width=True,
+    with st.container(border=True):
+        st.markdown("### 💾 この分析結果を保存する")
+        col_txt, col_csv = st.columns(2)
+        col_txt.download_button(
+            "📄 レポートを保存",
+            data=report.build_text_report(df, label).encode("utf-8"),
+            file_name=f"{safe_label}_{stamp}.txt",
+            mime="text/plain",
+            key=f"dl_txt_{key}",
+            use_container_width=True,
+            type="primary",
+        )
+        col_csv.download_button(
+            "📊 一覧を保存(CSV)",
+            data=("﻿" + report.build_csv(df)).encode("utf-8"),
+            file_name=f"{safe_label}_{stamp}.csv",
+            mime="text/csv",
+            key=f"dl_csv_{key}",
+            use_container_width=True,
+        )
+        st.caption("ボタンを押したあと「\"ファイル\"に保存」を選ぶと、iPhone内に残せます。")
+
+
+def pick_count(label: str, key: str, options: list[int], default: int) -> int:
+    """スライダーの代わりに、決まった数をワンタップで選べるようにする。"""
+    st.markdown(f"**{label}**")
+    picker = getattr(st, "segmented_control", None) or getattr(st, "pills", None)
+    if picker is not None:
+        value = picker(
+            label, options, default=default, key=key,
+            format_func=lambda n: f"{n}本", label_visibility="collapsed",
+        )
+        return value if value is not None else default
+    return st.radio(
+        label, options, index=options.index(default), horizontal=True,
+        key=key, format_func=lambda n: f"{n}本", label_visibility="collapsed",
     )
-    col_csv.download_button(
-        "📊 一覧(CSV)",
-        data=("﻿" + report.build_csv(df)).encode("utf-8"),
-        file_name=f"{safe_label}_{stamp}.csv",
-        mime="text/csv",
-        key=f"dl_csv_{key}",
-        use_container_width=True,
-    )
-    st.caption("保存先を「ファイル」アプリに選ぶと、iPhone内に残せます。")
+
+
+def render_channel_result(res: dict, key: str):
+    """保存済みのチャンネル分析結果を描画する(他を触っても消えないよう毎回描く)。"""
+    df = res["df"]
+    st.divider()
+    col1, col2, col3 = st.columns(3)
+    col1.metric("登録者数", f"{format_count_ja(res['subscriber_count'])}人")
+    col2.metric("総再生回数", f"{format_count_ja(res['view_count'])}回")
+    col3.metric("動画数", f"{res['video_count']:,}本")
+
+    render_download_section(df, res["label"], key)
+
+    if not df.empty:
+        st.markdown("**再生数の推移(投稿日順)**")
+        st.line_chart(df.sort_values("published_at").set_index("published_at")["view_count"])
+        st.markdown("**動画一覧(再生数順)**")
+    render_video_table(df)
+    render_pattern_analysis(df)
 
 
 st.title(f"📊 {APP_TITLE}")
@@ -267,31 +304,26 @@ with tab_own:
         "チャンネルID / @ハンドル / チャンネル名", key="own_query",
         placeholder="例: @MyChannel または UCxxxxxxxxxxxxxxxxxxxxxx",
     )
-    max_videos_own = st.slider("取得する動画数", 5, 50, 20, key="own_max")
+    max_videos_own = pick_count("取得する動画数", "own_max", [5, 10, 15, 20, 30, 50], 20)
 
-    if st.button("分析する", key="own_run") and own_query:
+    if st.button("分析する", key="own_run", type="primary") and own_query:
         with st.spinner("データを取得しています..."):
             channel_id = client.resolve_channel_id(own_query)
             if not channel_id:
                 st.error("チャンネルが見つかりませんでした。")
             else:
                 stats = client.get_channel_stats(channel_id)
-                col1, col2, col3 = st.columns(3)
-                col1.metric("登録者数", f"{format_count_ja(stats.subscriber_count)}人")
-                col2.metric("総再生回数", f"{format_count_ja(stats.view_count)}回")
-                col3.metric("動画数", f"{stats.video_count:,}本")
+                df = videos_to_df(client.get_channel_videos(channel_id, max_videos_own))
+                st.session_state.result_own = {
+                    "df": df,
+                    "label": f"自分のチャンネル_{stats.title}",
+                    "subscriber_count": stats.subscriber_count,
+                    "view_count": stats.view_count,
+                    "video_count": stats.video_count,
+                }
 
-                videos = client.get_channel_videos(channel_id, max_videos_own)
-                df = videos_to_df(videos)
-                if not df.empty:
-                    st.markdown("**再生数の推移(投稿日順)**")
-                    chart_df = df.sort_values("published_at").set_index("published_at")["view_count"]
-                    st.line_chart(chart_df)
-
-                    st.markdown("**動画一覧(再生数順)**")
-                render_video_table(df)
-                render_pattern_analysis(df)
-                render_download_section(df, f"自分のチャンネル_{stats.title}", "own")
+    if st.session_state.get("result_own"):
+        render_channel_result(st.session_state.result_own, "own")
 
 # ----------------------------------------------------------------------
 # トレンド調査
@@ -299,7 +331,7 @@ with tab_own:
 with tab_trend:
     st.subheader("キーワード・トピックのトレンド調査")
     keyword = st.text_input("調査したいキーワード", key="trend_keyword", placeholder="例: 副業 プログラミング")
-    col_a, col_b, col_c = st.columns(3)
+    col_a, col_b = st.columns(2)
     days = col_a.selectbox("期間", [7, 14, 30, 90], index=2, key="trend_days")
     order = col_b.selectbox(
         "並び順", ["viewCount", "relevance", "date", "rating"],
@@ -307,31 +339,42 @@ with tab_trend:
             "viewCount": "再生数順", "relevance": "関連度順", "date": "新着順", "rating": "評価順",
         }[x], key="trend_order",
     )
-    max_trend = col_c.slider("取得件数", 5, 50, 20, key="trend_max")
+    max_trend = pick_count("取得件数", "trend_max", [5, 10, 15, 20, 30, 50], 20)
 
-    if st.button("トレンドを調べる", key="trend_run") and keyword:
+    if st.button("トレンドを調べる", key="trend_run", type="primary") and keyword:
         with st.spinner("トレンドを検索しています..."):
-            videos = client.search_trending_videos(
+            df = videos_to_df(client.search_trending_videos(
                 keyword, max_results=max_trend, published_within_days=days, order=order
-            )
-            df = videos_to_df(videos)
-            if not df.empty:
-                st.markdown("**上位動画のチャンネル別再生数合計**")
-                by_channel = df.groupby("channel_title")["view_count"].sum().sort_values(ascending=False).head(10)
-                st.bar_chart(by_channel)
-            render_video_table(df)
-            render_pattern_analysis(df)
-            render_download_section(df, f"トレンド調査_{keyword}", "trend")
+            ))
+            st.session_state.result_trend = {"df": df, "label": f"トレンド調査_{keyword}"}
+
+    trend_res = st.session_state.get("result_trend")
+    if trend_res:
+        df = trend_res["df"]
+        st.divider()
+        render_download_section(df, trend_res["label"], "trend")
+        if not df.empty:
+            st.markdown("**上位動画のチャンネル別再生数合計**")
+            by_channel = df.groupby("channel_title")["view_count"].sum().sort_values(ascending=False).head(10)
+            st.bar_chart(by_channel)
+        render_video_table(df)
+        render_pattern_analysis(df)
 
     st.divider()
     st.subheader("急上昇動画(地域別)")
     region = st.selectbox("地域", ["JP", "US", "KR", "GB"], key="popular_region")
     if st.button("急上昇動画を見る", key="popular_run"):
         with st.spinner("取得しています..."):
-            popular_df = videos_to_df(client.get_most_popular(region_code=region, max_results=25))
-            render_video_table(popular_df)
-            render_pattern_analysis(popular_df)
-            render_download_section(popular_df, f"急上昇動画_{region}", "popular")
+            st.session_state.result_popular = {
+                "df": videos_to_df(client.get_most_popular(region_code=region, max_results=25)),
+                "label": f"急上昇動画_{region}",
+            }
+
+    popular_res = st.session_state.get("result_popular")
+    if popular_res:
+        render_download_section(popular_res["df"], popular_res["label"], "popular")
+        render_video_table(popular_res["df"])
+        render_pattern_analysis(popular_res["df"])
 
 # ----------------------------------------------------------------------
 # 競合チャンネル分析
@@ -357,24 +400,36 @@ with tab_competitor:
         st.caption("まだ登録がありません。下でチャンネルを分析し、「💾 保存」で追加できます。")
 
     if len(saved_competitors) >= 2:
-        combined_max = st.slider(
-            "各チャンネルから取得する動画数", 5, 30, 15, key="competitor_combined_max"
+        combined_max = pick_count(
+            "各チャンネルから取得する動画数", "competitor_combined_max", [5, 10, 15, 20, 30], 15
         )
-        if st.button("🔍 登録済み競合をまとめて分析(共通点を探す)", key="competitor_combined_run"):
+        if st.button(
+            "🔍 登録済み競合をまとめて分析(共通点を探す)",
+            key="competitor_combined_run", type="primary",
+        ):
             with st.spinner(f"{len(saved_competitors)}チャンネル分のデータを取得しています..."):
                 all_videos = []
                 for c in saved_competitors:
                     all_videos.extend(client.get_channel_videos(c["channel_id"], combined_max))
-                combined_df = videos_to_df(all_videos)
+                st.session_state.result_combined = {
+                    "df": videos_to_df(all_videos),
+                    "label": "競合まとめ分析",
+                    "channel_count": len(saved_competitors),
+                }
+
+        combined_res = st.session_state.get("result_combined")
+        if combined_res:
+            combined_df = combined_res["df"]
+            st.divider()
             if combined_df.empty:
                 st.info("動画が取得できませんでした。")
             else:
                 st.markdown(
-                    f"**{len(saved_competitors)}チャンネル・{len(combined_df)}本から見える共通点**"
+                    f"**{combined_res['channel_count']}チャンネル・{len(combined_df)}本から見える共通点**"
                 )
+                render_download_section(combined_df, combined_res["label"], "combined")
                 render_video_table(combined_df)
                 render_pattern_analysis(combined_df)
-                render_download_section(combined_df, "競合まとめ分析", "combined")
 
     st.divider()
     st.markdown("**新しいチャンネルを分析する**")
@@ -382,11 +437,13 @@ with tab_competitor:
         "競合チャンネルID / @ハンドル / チャンネル名", key="competitor_query",
         placeholder="例: @CompetitorChannel",
     )
-    max_videos_competitor = st.slider("取得する動画数", 5, 50, 20, key="competitor_max")
+    max_videos_competitor = pick_count(
+        "取得する動画数", "competitor_max", [5, 10, 15, 20, 30, 50], 20
+    )
 
     analyze_col, save_col = st.columns(2)
-    run_clicked = analyze_col.button("分析する", key="competitor_run")
-    save_clicked = save_col.button("💾 このチャンネルを保存", key="competitor_save")
+    run_clicked = analyze_col.button("分析する", key="competitor_run", type="primary")
+    save_clicked = save_col.button("➕ 競合として登録", key="competitor_save")
 
     if save_clicked and competitor_query:
         with st.spinner("チャンネルを確認しています..."):
@@ -407,17 +464,14 @@ with tab_competitor:
                 st.error("チャンネルが見つかりませんでした。")
             else:
                 stats = client.get_channel_stats(channel_id)
-                col1, col2, col3 = st.columns(3)
-                col1.metric("登録者数", f"{format_count_ja(stats.subscriber_count)}人")
-                col2.metric("総再生回数", f"{format_count_ja(stats.view_count)}回")
-                col3.metric("動画数", f"{stats.video_count:,}本")
+                df = videos_to_df(client.get_channel_videos(channel_id, max_videos_competitor))
+                st.session_state.result_competitor = {
+                    "df": df,
+                    "label": f"競合_{stats.title}",
+                    "subscriber_count": stats.subscriber_count,
+                    "view_count": stats.view_count,
+                    "video_count": stats.video_count,
+                }
 
-                videos = client.get_channel_videos(channel_id, max_videos_competitor)
-                df = videos_to_df(videos)
-                if not df.empty:
-                    st.markdown("**投稿頻度と再生数の傾向**")
-                    chart_df = df.sort_values("published_at").set_index("published_at")["view_count"]
-                    st.line_chart(chart_df)
-                render_video_table(df)
-                render_pattern_analysis(df)
-                render_download_section(df, f"競合_{stats.title}", "competitor")
+    if st.session_state.get("result_competitor"):
+        render_channel_result(st.session_state.result_competitor, "competitor")
