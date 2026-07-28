@@ -136,7 +136,7 @@ def cached_dominant_color(thumbnail_url: str) -> str | None:
     return analysis.dominant_color(thumbnail_url)
 
 
-def render_pattern_analysis(df: pd.DataFrame):
+def render_pattern_analysis(df: pd.DataFrame, label: str, key: str):
     """タイトル・タグ・ハッシュタグ・サムネイル色の傾向をまとめて表示する。"""
     if df.empty:
         return
@@ -186,6 +186,9 @@ def render_pattern_analysis(df: pd.DataFrame):
                         unsafe_allow_html=True,
                     )
                     st.caption(color)
+
+        st.divider()
+        render_download_section(df, label, f"{key}_pattern")
 
 
 def render_download_section(df: pd.DataFrame, label: str, key: str):
@@ -250,7 +253,7 @@ def render_channel_result(res: dict, key: str):
         st.line_chart(df.sort_values("published_at").set_index("published_at")["view_count"])
         st.markdown("**動画一覧(再生数順)**")
     render_video_table(df)
-    render_pattern_analysis(df)
+    render_pattern_analysis(df, res["label"], key)
 
 
 st.title(f"📊 {APP_TITLE}")
@@ -358,7 +361,7 @@ with tab_trend:
             by_channel = df.groupby("channel_title")["view_count"].sum().sort_values(ascending=False).head(10)
             st.bar_chart(by_channel)
         render_video_table(df)
-        render_pattern_analysis(df)
+        render_pattern_analysis(df, trend_res["label"], "trend")
 
     st.divider()
     st.subheader("急上昇動画(地域別)")
@@ -374,7 +377,7 @@ with tab_trend:
     if popular_res:
         render_download_section(popular_res["df"], popular_res["label"], "popular")
         render_video_table(popular_res["df"])
-        render_pattern_analysis(popular_res["df"])
+        render_pattern_analysis(popular_res["df"], popular_res["label"], "popular")
 
 # ----------------------------------------------------------------------
 # 競合チャンネル分析
@@ -429,7 +432,7 @@ with tab_competitor:
                 )
                 render_download_section(combined_df, combined_res["label"], "combined")
                 render_video_table(combined_df)
-                render_pattern_analysis(combined_df)
+                render_pattern_analysis(combined_df, combined_res["label"], "combined")
 
     st.divider()
     st.markdown("**新しいチャンネルを分析する**")
