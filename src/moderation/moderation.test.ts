@@ -81,6 +81,46 @@ describe('checkText', () => {
     assert.equal(result.severity, 'block');
     assert.equal(result.notifyGuardian, true);
   });
+
+  it('死ねの活用形（攻撃的な言い回し）も block にする', () => {
+    for (const input of ['しねよ', '死ねばいいのに', '死んでしまえ', '死んじゃえ', '死んでほしい']) {
+      const result = checkText(input);
+      assert.equal(result.severity, 'block', input);
+      assert.equal(result.notifyGuardian, true, input);
+      assert.equal(result.findings[0].category, 'violence', input);
+    }
+  });
+
+  it('消えろの活用形も block にする', () => {
+    for (const input of ['消えてほしい', '消えてしまえ']) {
+      assert.equal(checkText(input).severity, 'block', input);
+    }
+  });
+
+  it('死にたい・死のうは self_harm として block にし、保護者へ通知する', () => {
+    for (const input of ['死にたい', 'しにたい', '死のう', '消えたい', 'いなくなりたい']) {
+      const result = checkText(input);
+      assert.equal(result.severity, 'block', input);
+      assert.equal(result.notifyGuardian, true, input);
+      assert.equal(result.findings[0].category, 'self_harm', input);
+    }
+  });
+
+  it('self_harm のメッセージは責めずに相談を促す文言にする', () => {
+    const result = checkText('死にたい');
+    assert.ok(result.message?.includes('おうちの人'));
+  });
+
+  it('「死んで」単体の断片は warn にとどめ、強制ブロックしない', () => {
+    const result = checkText('死んでは どうかな');
+    assert.equal(result.severity, 'warn');
+    assert.equal(result.notifyGuardian, false);
+  });
+
+  it('死別についての普通の文章を誤って block しない', () => {
+    const result = checkText('かっていた ねこが 死んで かなしかった');
+    assert.notEqual(result.severity, 'block');
+  });
 });
 
 describe('checkPageTexts', () => {

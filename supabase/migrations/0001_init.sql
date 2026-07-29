@@ -127,7 +127,7 @@ create table public.nudges (
 create table public.safety_alerts (
   id         uuid primary key default gen_random_uuid(),
   child_id   uuid not null references public.children(id) on delete cascade,
-  category   text not null check (category in ('violence', 'exclusion', 'insult', 'personal_info')),
+  category   text not null check (category in ('violence', 'self_harm', 'exclusion', 'insult', 'personal_info')),
   created_at timestamptz not null default now()
 );
 

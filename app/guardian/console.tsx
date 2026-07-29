@@ -35,6 +35,7 @@ const watchModeOptions: { value: WatchMode; label: string; detail: string }[] = 
 
 const alertLabels: Record<string, string> = {
   violence: '危険を示す表現が検知されました',
+  self_harm: 'つらい気持ち・自分を傷つけたい気持ちを示す表現が検知されました。お子さまとお話しください',
   exclusion: '仲間はずれを示す表現が検知されました',
   insult: 'きつい表現が検知されました',
   personal_info: '個人情報らしき記載が検知されました',
