@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
@@ -28,6 +28,13 @@ export function DrawingCanvas({
 }) {
   const [liveStroke, setLiveStroke] = useState<StrokeElement | null>(null);
   const scaleRef = useRef(0);
+
+  // ジェスチャーの再構築を最小限にするため、最新の content はコールバックの依存に
+  // 入れず ref 経由で読む。content は 1 ストロークごとに更新されるので、依存に含めると
+  // 描画中に毎回ジェスチャーが作り直され、RNGH の内部状態更新と競合して
+  // 「別のコンポーネントを描画中に更新しようとした」という警告が出ていた。
+  const contentRef = useRef(content);
+  contentRef.current = content;
 
   const handleLayoutSize = useCallback((width: number) => {
     scaleRef.current = width / CANVAS_WIDTH;
@@ -63,57 +70,65 @@ export function DrawingCanvas({
   const commitStroke = useCallback(() => {
     setLiveStroke((prev) => {
       if (prev && prev.points.length > 0) {
-        onChange({ ...content, elements: [...content.elements, prev] });
+        onChange({ ...contentRef.current, elements: [...contentRef.current.elements, prev] });
       }
       return null;
     });
-  }, [content, onChange]);
+  }, [onChange]);
 
   const placeStamp = useCallback(
     (x: number, y: number) => {
       if (tool.kind !== 'stamp') return;
       const [cx, cy] = toCanvas(x, y);
       onChange({
-        ...content,
+        ...contentRef.current,
         elements: [
-          ...content.elements,
+          ...contentRef.current.elements,
           { type: 'stamp', key: tool.stampKey, x: cx - 48, y: cy - 48, scale: 1, rotation: 0 },
         ],
       });
     },
-    [content, onChange, tool, toCanvas],
+    [onChange, tool, toCanvas],
   );
 
   const eraseLast = useCallback(() => {
-    if (content.elements.length === 0) return;
-    onChange({ ...content, elements: content.elements.slice(0, -1) });
-  }, [content, onChange]);
+    if (contentRef.current.elements.length === 0) return;
+    onChange({ ...contentRef.current, elements: contentRef.current.elements.slice(0, -1) });
+  }, [onChange]);
 
-  const pan = Gesture.Pan()
-    .minDistance(0)
-    .onBegin((event) => {
-      'worklet';
-      runOnJS(beginStroke)(event.x, event.y);
-    })
-    .onUpdate((event) => {
-      'worklet';
-      runOnJS(extendStroke)(event.x, event.y);
-    })
-    .onFinalize(() => {
-      'worklet';
-      runOnJS(commitStroke)();
-    });
+  const pan = useMemo(
+    () =>
+      Gesture.Pan()
+        .minDistance(0)
+        .onBegin((event) => {
+          'worklet';
+          runOnJS(beginStroke)(event.x, event.y);
+        })
+        .onUpdate((event) => {
+          'worklet';
+          runOnJS(extendStroke)(event.x, event.y);
+        })
+        .onFinalize(() => {
+          'worklet';
+          runOnJS(commitStroke)();
+        }),
+    [beginStroke, extendStroke, commitStroke],
+  );
 
-  const tap = Gesture.Tap().onEnd((event) => {
-    'worklet';
-    if (tool.kind === 'stamp') {
-      runOnJS(placeStamp)(event.x, event.y);
-    } else {
-      runOnJS(eraseLast)();
-    }
-  });
+  const tap = useMemo(
+    () =>
+      Gesture.Tap().onEnd((event) => {
+        'worklet';
+        if (tool.kind === 'stamp') {
+          runOnJS(placeStamp)(event.x, event.y);
+        } else {
+          runOnJS(eraseLast)();
+        }
+      }),
+    [tool, placeStamp, eraseLast],
+  );
 
-  const gesture = tool.kind === 'pen' ? pan : tap;
+  const gesture = useMemo(() => (tool.kind === 'pen' ? pan : tap), [tool.kind, pan, tap]);
 
   return (
     <GestureDetector gesture={gesture}>
