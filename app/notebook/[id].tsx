@@ -4,6 +4,7 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { BigButton, Body, Card, Loading, Screen, Title } from '../../src/components/ui';
 import { WatchModeBadge } from '../../src/components/WatchModeBadge';
 import { PageCanvas } from '../../src/features/canvas/PageCanvas';
+import { TreeCard } from '../../src/features/tree/TreeCard';
 import { fetchMembers, fetchNotebook, fetchPages, passTurn, sendNudge } from '../../src/api';
 import { useSession } from '../../src/lib/session';
 import { useUiText } from '../../src/lib/uiText';
@@ -97,6 +98,8 @@ export default function NotebookScreen() {
     <Screen>
       <WatchModeBadge mode={child.watch_mode} />
       <Title>{notebook.title}</Title>
+
+      <TreeCard notebookId={notebook.id} pageCount={pages.length} />
 
       {myTurn ? (
         <Card>
