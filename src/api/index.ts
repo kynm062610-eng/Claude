@@ -1,12 +1,14 @@
 import { supabase } from '../lib/supabase';
 import type {
   Child,
+  ChildProfile,
   GuardianEvent,
   Group,
   Membership,
   Notebook,
   Page,
   PageContent,
+  ProfileAnswers,
   Reaction,
   WatchMode,
 } from '../types';
@@ -61,6 +63,31 @@ export async function updateChildPreferences(
   patch: Partial<Pick<Child, 'nickname' | 'avatar_key' | 'furigana_enabled'>>,
 ): Promise<void> {
   const { error } = await supabase.from('children').update(patch).eq('id', childId);
+  if (error) throw error;
+}
+
+/** 自分のプロフィール回答を取得する。まだ何も保存していなければ null。 */
+export async function fetchMyProfile(childId: string): Promise<ChildProfile | null> {
+  const { data, error } = await supabase
+    .from('child_profiles')
+    .select('*')
+    .eq('child_id', childId)
+    .maybeSingle();
+  if (error) throw error;
+  return data as ChildProfile | null;
+}
+
+/** グループの仲間のプロフィールをまとめて取得する（ブロック相手は RLS 側で自動的に除外される）。 */
+export async function fetchProfiles(childIds: string[]): Promise<ChildProfile[]> {
+  if (childIds.length === 0) return [];
+  const { data, error } = await supabase.from('child_profiles').select('*').in('child_id', childIds);
+  if (error) throw error;
+  return (data ?? []) as ChildProfile[];
+}
+
+/** プロフィールの保存。RPC を通し、更新日時を必ず更新する。 */
+export async function saveMyProfile(answers: ProfileAnswers): Promise<void> {
+  const { error } = await supabase.rpc('save_my_profile', { p_answers: answers });
   if (error) throw error;
 }
 

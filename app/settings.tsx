@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Body, Card, Loading, Screen, Title } from '../src/components/ui';
+import { BigButton, Body, Card, Loading, Screen, Title } from '../src/components/ui';
 import { WatchModeBadge } from '../src/components/WatchModeBadge';
 import { updateChildPreferences } from '../src/api';
 import { useSession } from '../src/lib/session';
@@ -29,6 +29,21 @@ export default function Settings() {
   return (
     <Screen>
       <Title>{t('せってい', '設定')}</Title>
+
+      <Card>
+        <Body muted>{t('プロフィール', 'プロフィール')}</Body>
+        <Body>
+          {t(
+            'すきなもの や せいかくを かいて、ともだちに しょうかいしよう。',
+            '好きなものや性格を書いて、友達に紹介しよう。',
+          )}
+        </Body>
+        <BigButton
+          label={t('プロフィールを へんしゅう', 'プロフィールを編集')}
+          variant="secondary"
+          onPress={() => router.push('/profile/edit')}
+        />
+      </Card>
 
       <Card>
         <Body muted>{t('いまの みまもり', '今の見まもり')}</Body>

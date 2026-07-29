@@ -138,6 +138,23 @@ PK (`child_id`, `blocked_child_id`)
 | `notified_child_at` | timestamptz | 子どもへ通知した日時 |
 | `created_at` | timestamptz | |
 
+### `child_profiles` — プロフィール
+
+質問は増減しやすいよう `answers` を jsonb（質問 ID → 回答文字列）で持つ。質問の定義自体は
+`src/data/profileQuestions.ts` にあり、DB には値だけを保存する。
+
+| 列 | 型 | 備考 |
+|---|---|---|
+| `child_id` | uuid PK, FK → children | 1 子ども 1 行 |
+| `answers` | jsonb | 質問 ID → 回答文字列。空欄の質問はキー自体を持たない |
+| `updated_at` | timestamptz | |
+| `created_at` | timestamptz | |
+
+閲覧は本人・同じグループの子（ブロック相手を除く）・`watch_mode = 'full'` の保護者に限定する
+（`pages` と同じ扱い）。自由入力の質問は、ページ投稿と同じ NG ワード・個人情報チェックを
+保存前に通す（`app/profile/edit.tsx`）。居住地・生年月日・写真・恋愛に関する質問は
+意図的に用意しない（`docs/01-safety-and-privacy.md` の方針）。
+
 ---
 
 ## 2. `pages.content` の形

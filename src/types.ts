@@ -12,6 +12,15 @@ export type Child = {
   quiet_hours_end: number;
 };
 
+/** プロフィールの回答。質問 ID -> 回答文字列。空欄の質問はキー自体を持たない。 */
+export type ProfileAnswers = Record<string, string>;
+
+export type ChildProfile = {
+  child_id: string;
+  answers: ProfileAnswers;
+  updated_at: string;
+};
+
 export type Group = {
   id: string;
   name: string;

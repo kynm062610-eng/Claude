@@ -30,6 +30,8 @@ export default function RootLayout() {
             <Stack.Screen name="page/new" options={{ title: 'ページを かく' }} />
             <Stack.Screen name="page/[id]" options={{ title: 'ページ' }} />
             <Stack.Screen name="settings" options={{ title: 'せってい' }} />
+            <Stack.Screen name="profile/edit" options={{ title: 'プロフィール' }} />
+            <Stack.Screen name="profile/[childId]" options={{ title: 'プロフィール' }} />
             <Stack.Screen name="guardian/console" options={{ title: '保護者メニュー' }} />
           </Stack>
         </SessionProvider>

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { BigButton, Body, Card, Loading, Screen, Title } from '../../src/components/ui';
 import { WatchModeBadge } from '../../src/components/WatchModeBadge';
@@ -55,14 +55,19 @@ export default function GroupScreen() {
       </Card>
 
       <Card>
-        <Body muted>{t('じゅんばん', '順番')}</Body>
+        <Body muted>{t('じゅんばん（タップで プロフィール）', '順番（タップでプロフィール）')}</Body>
         <View style={styles.memberRow}>
           {members.map((member, index) => (
-            <View key={member.id} style={styles.member}>
+            <Pressable
+              key={member.id}
+              accessibilityRole="button"
+              onPress={() => router.push(`/profile/${member.id}`)}
+              style={styles.member}
+            >
               <Text style={styles.memberEmoji}>{avatarEmoji(member.avatar_key)}</Text>
               <Text style={styles.memberName}>{member.nickname}</Text>
               <Text style={styles.memberOrder}>{index + 1}</Text>
-            </View>
+            </Pressable>
           ))}
         </View>
       </Card>
