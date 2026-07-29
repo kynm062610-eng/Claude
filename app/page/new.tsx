@@ -19,6 +19,7 @@ import { checkPageTexts } from '../../src/moderation';
 import { promptOfTheDay } from '../../src/data/prompts';
 import { backgrounds, stamps } from '../../src/data/assets';
 import { useSession } from '../../src/lib/session';
+import { useUiText } from '../../src/lib/uiText';
 import { isQuietHours, quietHoursMessage } from '../../src/utils/quietHours';
 import { MIN_TAP, colors, fontSize, penColors, penWidths, radius, spacing } from '../../src/theme';
 import { emptyPageContent, type PageContent } from '../../src/types';
@@ -26,6 +27,7 @@ import { emptyPageContent, type PageContent } from '../../src/types';
 export default function NewPage() {
   const { notebookId } = useLocalSearchParams<{ notebookId: string }>();
   const { child } = useSession();
+  const { t } = useUiText();
   const [content, setContent] = useState<PageContent>(() => emptyPageContent('dots'));
   const [tool, setTool] = useState<Tool>({ kind: 'pen', color: penColors[0], width: penWidths[1] });
   const [draftText, setDraftText] = useState('');
@@ -33,7 +35,8 @@ export default function NewPage() {
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
-  const prompt = useMemo(() => promptOfTheDay(), []);
+  const promptPair = useMemo(() => promptOfTheDay(), []);
+  const prompt = t(promptPair.kana, promptPair.kanji);
 
   // もじ入力欄はスクロールの下のほうにあるため、キーボードが出ると隠れて
   // 打ち込んだ文字が見えなくなることがある。フォーカス時に末尾へスクロールして
@@ -67,7 +70,7 @@ export default function NewPage() {
     if (!notebookId || !child) return;
 
     if (isQuietHours(new Date(), child.quiet_hours_start, child.quiet_hours_end)) {
-      Alert.alert('おやすみ じかん', quietHoursMessage(child.quiet_hours_start, child.quiet_hours_end));
+      Alert.alert(t('おやすみ じかん', 'おやすみ時間'), quietHoursMessage(child.quiet_hours_start, child.quiet_hours_end));
       return;
     }
 
@@ -84,7 +87,7 @@ export default function NewPage() {
     }
 
     if (result.severity === 'block') {
-      Alert.alert('ちょっと まって', result.message ?? '');
+      Alert.alert(t('ちょっと まって', 'ちょっと待って'), result.message ? t(result.message.kana, result.message.kanji) : '');
       return;
     }
 
@@ -100,10 +103,10 @@ export default function NewPage() {
       } catch (e) {
         const message = e instanceof Error ? e.message : '';
         Alert.alert(
-          'おくれなかったよ',
+          t('おくれなかったよ', '送れなかったよ'),
           message.includes('not_your_turn')
-            ? 'いまは じぶんの ばんじゃ ないみたい。'
-            : 'もういちど ためしてみてね。',
+            ? t('いまは じぶんの ばんじゃ ないみたい。', '今は自分の番じゃないみたい。')
+            : t('もういちど ためしてみてね。', 'もう一度試してみてね。'),
         );
       } finally {
         setBusy(false);
@@ -111,9 +114,9 @@ export default function NewPage() {
     };
 
     if (result.severity === 'warn') {
-      Alert.alert('かくにん', result.message ?? '', [
-        { text: 'なおす', style: 'cancel' },
-        { text: 'このまま おくる', onPress: () => void send() },
+      Alert.alert(t('かくにん', '確認'), result.message ? t(result.message.kana, result.message.kanji) : '', [
+        { text: t('なおす', '直す'), style: 'cancel' },
+        { text: t('このまま おくる', 'このまま送る'), onPress: () => void send() },
       ]);
       return;
     }
@@ -132,116 +135,120 @@ export default function NewPage() {
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
         >
-        <Pressable style={styles.promptCard} onPress={() => setUsePrompt((v) => !v)}>
-          <Text style={styles.promptLabel}>きょうの おだい {usePrompt ? '✓' : ''}</Text>
-          <Text style={styles.promptText}>{prompt}</Text>
-        </Pressable>
+          <Pressable style={styles.promptCard} onPress={() => setUsePrompt((v) => !v)}>
+            <Text style={styles.promptLabel}>{t('きょうの おだい', '今日のお題')} {usePrompt ? '✓' : ''}</Text>
+            <Text style={styles.promptText}>{prompt}</Text>
+          </Pressable>
 
-        <DrawingCanvas content={content} onChange={setContent} tool={tool} />
+          <DrawingCanvas content={content} onChange={setContent} tool={tool} />
 
-        <View style={styles.toolRow}>
-          {penColors.map((color) => (
+          <View style={styles.toolRow}>
+            {penColors.map((color) => (
+              <Pressable
+                key={color}
+                accessibilityRole="button"
+                accessibilityLabel={`いろ ${color}`}
+                onPress={() => setTool({ kind: 'pen', color, width: tool.kind === 'pen' ? tool.width : penWidths[1] })}
+                style={[
+                  styles.swatch,
+                  { backgroundColor: color },
+                  tool.kind === 'pen' && tool.color === color && styles.swatchSelected,
+                ]}
+              />
+            ))}
+          </View>
+
+          <View style={styles.toolRow}>
+            {penWidths.map((width) => (
+              <Pressable
+                key={width}
+                accessibilityRole="button"
+                accessibilityLabel={`ふとさ ${width}`}
+                onPress={() =>
+                  setTool({ kind: 'pen', color: tool.kind === 'pen' ? tool.color : penColors[0], width })
+                }
+                style={[styles.toolChip, tool.kind === 'pen' && tool.width === width && styles.toolChipOn]}
+              >
+                <View style={{ width: width * 1.4, height: width * 1.4, borderRadius: width, backgroundColor: colors.text }} />
+              </Pressable>
+            ))}
             <Pressable
-              key={color}
               accessibilityRole="button"
-              accessibilityLabel={`いろ ${color}`}
-              onPress={() => setTool({ kind: 'pen', color, width: tool.kind === 'pen' ? tool.width : penWidths[1] })}
-              style={[
-                styles.swatch,
-                { backgroundColor: color },
-                tool.kind === 'pen' && tool.color === color && styles.swatchSelected,
-              ]}
+              accessibilityLabel="ひとつ もどす"
+              onPress={() => setTool({ kind: 'eraser' })}
+              style={[styles.toolChip, tool.kind === 'eraser' && styles.toolChipOn]}
+            >
+              <Text style={styles.toolChipText}>{t('けす', '消す')}</Text>
+            </Pressable>
+          </View>
+          {tool.kind === 'eraser' && (
+            <Text style={styles.hint}>
+              {t('キャンバスを タップすると、さいごに かいたものが きえるよ。', 'キャンバスをタップすると、最後に描いたものが消えるよ。')}
+            </Text>
+          )}
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stampRow}>
+            {stamps.map((stamp) => (
+              <Pressable
+                key={stamp.key}
+                accessibilityRole="button"
+                accessibilityLabel={`すたんぷ ${stamp.key}`}
+                onPress={() => setTool({ kind: 'stamp', stampKey: stamp.key })}
+                style={[
+                  styles.stamp,
+                  tool.kind === 'stamp' && tool.stampKey === stamp.key && styles.toolChipOn,
+                ]}
+              >
+                <Text style={styles.stampEmoji}>{stamp.emoji}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          {tool.kind === 'stamp' && (
+            <Text style={styles.hint}>
+              {t('キャンバスを タップすると スタンプが はれるよ。', 'キャンバスをタップするとスタンプが貼れるよ。')}
+            </Text>
+          )}
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stampRow}>
+            {backgrounds.map((background) => (
+              <Pressable
+                key={background.key}
+                accessibilityRole="button"
+                accessibilityLabel={`はいけい ${background.label}`}
+                onPress={() => setContent({ ...content, background: background.key })}
+                style={[
+                  styles.background,
+                  { backgroundColor: background.color },
+                  content.background === background.key && styles.swatchSelected,
+                ]}
+              >
+                <Text style={styles.backgroundLabel}>{t(background.label, background.labelKanji)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          <View style={styles.textRow}>
+            <TextInput
+              style={styles.textInput}
+              value={draftText}
+              onChangeText={setDraftText}
+              onFocus={scrollToTextInput}
+              placeholder={t('もじを かく', '文字を書く')}
+              placeholderTextColor={colors.textMuted}
+              maxLength={80}
             />
-          ))}
-        </View>
-
-        <View style={styles.toolRow}>
-          {penWidths.map((width) => (
             <Pressable
-              key={width}
               accessibilityRole="button"
-              accessibilityLabel={`ふとさ ${width}`}
-              onPress={() =>
-                setTool({ kind: 'pen', color: tool.kind === 'pen' ? tool.color : penColors[0], width })
-              }
-              style={[styles.toolChip, tool.kind === 'pen' && tool.width === width && styles.toolChipOn]}
+              onPress={addText}
+              style={[styles.toolChip, styles.addTextButton]}
             >
-              <View style={{ width: width * 1.4, height: width * 1.4, borderRadius: width, backgroundColor: colors.text }} />
+              <Text style={styles.toolChipText}>{t('いれる', '入れる')}</Text>
             </Pressable>
-          ))}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="ひとつ もどす"
-            onPress={() => setTool({ kind: 'eraser' })}
-            style={[styles.toolChip, tool.kind === 'eraser' && styles.toolChipOn]}
-          >
-            <Text style={styles.toolChipText}>けす</Text>
-          </Pressable>
-        </View>
-        {tool.kind === 'eraser' && (
-          <Text style={styles.hint}>キャンバスを タップすると、さいごに かいたものが きえるよ。</Text>
-        )}
+          </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stampRow}>
-          {stamps.map((stamp) => (
-            <Pressable
-              key={stamp.key}
-              accessibilityRole="button"
-              accessibilityLabel={`すたんぷ ${stamp.key}`}
-              onPress={() => setTool({ kind: 'stamp', stampKey: stamp.key })}
-              style={[
-                styles.stamp,
-                tool.kind === 'stamp' && tool.stampKey === stamp.key && styles.toolChipOn,
-              ]}
-            >
-              <Text style={styles.stampEmoji}>{stamp.emoji}</Text>
-            </Pressable>
-          ))}
+          <BigButton label={t('おくる', '送る')} onPress={submit} loading={busy} />
+          <BigButton label={t('やめる', 'やめる')} variant="secondary" onPress={() => router.back()} />
         </ScrollView>
-        {tool.kind === 'stamp' && (
-          <Text style={styles.hint}>キャンバスを タップすると スタンプが はれるよ。</Text>
-        )}
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stampRow}>
-          {backgrounds.map((background) => (
-            <Pressable
-              key={background.key}
-              accessibilityRole="button"
-              accessibilityLabel={`はいけい ${background.label}`}
-              onPress={() => setContent({ ...content, background: background.key })}
-              style={[
-                styles.background,
-                { backgroundColor: background.color },
-                content.background === background.key && styles.swatchSelected,
-              ]}
-            >
-              <Text style={styles.backgroundLabel}>{background.label}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
-        <View style={styles.textRow}>
-          <TextInput
-            style={styles.textInput}
-            value={draftText}
-            onChangeText={setDraftText}
-            onFocus={scrollToTextInput}
-            placeholder="もじを かく"
-            placeholderTextColor={colors.textMuted}
-            maxLength={80}
-          />
-          <Pressable
-            accessibilityRole="button"
-            onPress={addText}
-            style={[styles.toolChip, styles.addTextButton]}
-          >
-            <Text style={styles.toolChipText}>いれる</Text>
-          </Pressable>
-        </View>
-
-        <BigButton label="おくる" onPress={submit} loading={busy} />
-        <BigButton label="やめる" variant="secondary" onPress={() => router.back()} />
-      </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

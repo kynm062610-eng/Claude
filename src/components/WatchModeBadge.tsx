@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useUiText } from '../lib/uiText';
 import { colors, fontSize, radius, spacing } from '../theme';
 import type { WatchMode } from '../types';
 
@@ -10,22 +11,29 @@ import type { WatchMode } from '../types';
  * 「知らないうちに保護者が読んでいる」状態を作らないために、
  * ノート系の画面には必ずこのバッジを置く（docs/01-safety-and-privacy.md）。
  */
-const labels: Record<WatchMode, { text: string; emoji: string; color: string }> = {
-  off: { text: 'おうちの人：見ていません', emoji: '🙈', color: colors.success },
-  notify_only: { text: 'おうちの人：書いたことだけ つたわります', emoji: '🔔', color: colors.accent },
-  full: { text: 'おうちの人：見ています', emoji: '👀', color: colors.primary },
+const labels: Record<WatchMode, { kana: string; kanji: string; emoji: string; color: string }> = {
+  off: { kana: 'おうちの人：見ていません', kanji: 'おうちの人：見ていません', emoji: '🙈', color: colors.success },
+  notify_only: {
+    kana: 'おうちの人：書いたことだけ つたわります',
+    kanji: 'おうちの人：書いたことだけ伝わります',
+    emoji: '🔔',
+    color: colors.accent,
+  },
+  full: { kana: 'おうちの人：見ています', kanji: 'おうちの人：見ています', emoji: '👀', color: colors.primary },
 };
 
 export function WatchModeBadge({ mode }: { mode: WatchMode }) {
+  const { t } = useUiText();
   const item = labels[mode];
+  const text = t(item.kana, item.kanji);
   return (
     <View
       accessibilityRole="text"
-      accessibilityLabel={`見まもりモード: ${item.text}`}
+      accessibilityLabel={`見まもりモード: ${text}`}
       style={[styles.badge, { borderColor: item.color }]}
     >
       <Text style={styles.emoji}>{item.emoji}</Text>
-      <Text style={styles.text}>{item.text}</Text>
+      <Text style={styles.text}>{text}</Text>
     </View>
   );
 }

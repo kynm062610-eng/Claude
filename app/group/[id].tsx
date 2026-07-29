@@ -5,6 +5,7 @@ import { BigButton, Body, Card, Loading, Screen, Title } from '../../src/compone
 import { WatchModeBadge } from '../../src/components/WatchModeBadge';
 import { fetchGroup, fetchMembers, fetchNotebooks } from '../../src/api';
 import { useSession } from '../../src/lib/session';
+import { useUiText } from '../../src/lib/uiText';
 import { avatarEmoji } from '../../src/data/assets';
 import { colors, fontSize, radius, spacing } from '../../src/theme';
 import type { Child, Group, Notebook } from '../../src/types';
@@ -12,6 +13,7 @@ import type { Child, Group, Notebook } from '../../src/types';
 export default function GroupScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { child } = useSession();
+  const { t } = useUiText();
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<Child[]>([]);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
@@ -39,7 +41,7 @@ export default function GroupScreen() {
   if (loading || !group || !child) return <Loading />;
 
   const nameOf = (childId: string | null) =>
-    members.find((m) => m.id === childId)?.nickname ?? 'だれか';
+    members.find((m) => m.id === childId)?.nickname ?? t('だれか', '誰か');
 
   return (
     <Screen>
@@ -47,13 +49,13 @@ export default function GroupScreen() {
       <Title>{group.name}</Title>
 
       <Card>
-        <Body muted>あいことば（ともだちに おしえてね）</Body>
+        <Body muted>{t('あいことば（ともだちに おしえてね）', '合言葉（友達に教えてね）')}</Body>
         <Text style={styles.code}>{group.invite_code}</Text>
-        <Body muted>{members.length} / {group.max_members} にん</Body>
+        <Body muted>{members.length} / {group.max_members} {t('にん', '人')}</Body>
       </Card>
 
       <Card>
-        <Body muted>じゅんばん</Body>
+        <Body muted>{t('じゅんばん', '順番')}</Body>
         <View style={styles.memberRow}>
           {members.map((member, index) => (
             <View key={member.id} style={styles.member}>
@@ -71,19 +73,19 @@ export default function GroupScreen() {
           <Card key={notebook.id} onPress={() => router.push(`/notebook/${notebook.id}`)}>
             <Text style={styles.notebookTitle}>{notebook.title}</Text>
             {notebook.is_closed ? (
-              <Body muted>かきおわった ノート</Body>
+              <Body muted>{t('かきおわった ノート', '書き終わったノート')}</Body>
             ) : isMine ? (
               <View style={styles.turnBadge}>
-                <Text style={styles.turnBadgeText}>あなたの ばん！</Text>
+                <Text style={styles.turnBadgeText}>{t('あなたの ばん！', 'あなたの番！')}</Text>
               </View>
             ) : (
-              <Body muted>いまは {nameOf(notebook.current_turn_child_id)} の ばん</Body>
+              <Body muted>{t(`いまは ${nameOf(notebook.current_turn_child_id)} の ばん`, `今は${nameOf(notebook.current_turn_child_id)}の番`)}</Body>
             )}
           </Card>
         );
       })}
 
-      <BigButton label="ホームに もどる" variant="secondary" onPress={() => router.push('/home')} />
+      <BigButton label={t('ホームに もどる', 'ホームに戻る')} variant="secondary" onPress={() => router.push('/home')} />
     </Screen>
   );
 }

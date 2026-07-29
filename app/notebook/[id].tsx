@@ -6,6 +6,7 @@ import { WatchModeBadge } from '../../src/components/WatchModeBadge';
 import { PageCanvas } from '../../src/features/canvas/PageCanvas';
 import { fetchMembers, fetchNotebook, fetchPages, passTurn, sendNudge } from '../../src/api';
 import { useSession } from '../../src/lib/session';
+import { useUiText } from '../../src/lib/uiText';
 import { avatarEmoji } from '../../src/data/assets';
 import { canNudge, isMyTurn } from '../../src/utils/turn';
 import { isQuietHours, quietHoursMessage } from '../../src/utils/quietHours';
@@ -15,6 +16,7 @@ import type { Child, Notebook, Page } from '../../src/types';
 export default function NotebookScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { child } = useSession();
+  const { t } = useUiText();
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [pages, setPages] = useState<Page[]>([]);
   const [members, setMembers] = useState<Child[]>([]);
@@ -43,8 +45,8 @@ export default function NotebookScreen() {
   if (!notebook) {
     return (
       <Screen>
-        <Body>ノートが みつからなかったよ。</Body>
-        <BigButton label="もどる" variant="secondary" onPress={() => router.back()} />
+        <Body>{t('ノートが みつからなかったよ。', 'ノートが見つからなかったよ。')}</Body>
+        <BigButton label={t('もどる', '戻る')} variant="secondary" onPress={() => router.back()} />
       </Screen>
     );
   }
@@ -53,21 +55,24 @@ export default function NotebookScreen() {
   const quiet = isQuietHours(new Date(), child.quiet_hours_start, child.quiet_hours_end);
   const nudgeable = canNudge(notebook, child.id);
   const nameOf = (childId: string | null) =>
-    members.find((m) => m.id === childId)?.nickname ?? 'だれか';
+    members.find((m) => m.id === childId)?.nickname ?? t('だれか', '誰か');
 
   const onWrite = () => {
     if (quiet) {
-      Alert.alert('おやすみ じかん', quietHoursMessage(child.quiet_hours_start, child.quiet_hours_end));
+      Alert.alert(
+        t('おやすみ じかん', 'おやすみ時間'),
+        quietHoursMessage(child.quiet_hours_start, child.quiet_hours_end),
+      );
       return;
     }
     router.push({ pathname: '/page/new', params: { notebookId: notebook.id } });
   };
 
   const onPass = () => {
-    Alert.alert('パスする？', 'かかずに つぎの ひとに まわすよ。', [
-      { text: 'やめる', style: 'cancel' },
+    Alert.alert(t('パスする？', 'パスする？'), t('かかずに つぎの ひとに まわすよ。', '書かずに次の人に回すよ。'), [
+      { text: t('やめる', 'やめる'), style: 'cancel' },
       {
-        text: 'パスする',
+        text: t('パスする', 'パスする'),
         onPress: async () => {
           await passTurn(notebook.id);
           await load();
@@ -79,9 +84,12 @@ export default function NotebookScreen() {
   const onNudge = async () => {
     try {
       await sendNudge(notebook.id);
-      Alert.alert('おくったよ', 'かえして！を おくったよ。');
+      Alert.alert(t('おくったよ', '送ったよ'), t('かえして！を おくったよ。', 'かえして！を送ったよ。'));
     } catch {
-      Alert.alert('きょうは もう おくったよ', 'あしたに なったら また おくれるよ。');
+      Alert.alert(
+        t('きょうは もう おくったよ', '今日はもう送ったよ'),
+        t('あしたに なったら また おくれるよ。', '明日になったらまた送れるよ。'),
+      );
     }
   };
 
@@ -92,18 +100,22 @@ export default function NotebookScreen() {
 
       {myTurn ? (
         <Card>
-          <Body>いまは あなたの ばん！</Body>
-          <BigButton label="ページを かく" onPress={onWrite} />
-          <BigButton label="きょうは パスする" variant="secondary" onPress={onPass} />
+          <Body>{t('いまは あなたの ばん！', '今はあなたの番！')}</Body>
+          <BigButton label={t('ページを かく', 'ページを書く')} onPress={onWrite} />
+          <BigButton label={t('きょうは パスする', '今日はパスする')} variant="secondary" onPress={onPass} />
         </Card>
       ) : (
         <Card>
-          <Body>いまは {nameOf(notebook.current_turn_child_id)} の ばん</Body>
-          {nudgeable && <BigButton label="かえして！ を おくる" variant="secondary" onPress={onNudge} />}
+          <Body>{t(`いまは ${nameOf(notebook.current_turn_child_id)} の ばん`, `今は${nameOf(notebook.current_turn_child_id)}の番`)}</Body>
+          {nudgeable && (
+            <BigButton label={t('かえして！ を おくる', 'かえして！を送る')} variant="secondary" onPress={onNudge} />
+          )}
         </Card>
       )}
 
-      {pages.length === 0 && <Body muted>まだ 1ページも かかれていないよ。</Body>}
+      {pages.length === 0 && (
+        <Body muted>{t('まだ 1ページも かかれていないよ。', 'まだ1ページも書かれていないよ。')}</Body>
+      )}
 
       {pages.map((page) => (
         <Card key={page.id} onPress={() => router.push(`/page/${page.id}`)}>
@@ -112,7 +124,7 @@ export default function NotebookScreen() {
               {avatarEmoji(members.find((m) => m.id === page.author_child_id)?.avatar_key ?? 'cat')}{' '}
               {nameOf(page.author_child_id)}
             </Text>
-            <Text style={styles.pageNumber}>{page.page_number}ページ</Text>
+            <Text style={styles.pageNumber}>{page.page_number}{t('ページ', 'ページ')}</Text>
           </View>
           <PageCanvas content={page.content} />
         </Card>

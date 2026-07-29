@@ -42,12 +42,12 @@ export function stampEmoji(key: string): string {
 }
 
 export const backgrounds = [
-  { key: 'plain', label: 'むじ', color: '#FFFFFF' },
-  { key: 'dots', label: 'みずたま', color: '#FFF7E8' },
-  { key: 'grid', label: 'ほうがん', color: '#F3F9FF' },
-  { key: 'lined', label: 'せんつき', color: '#FFFDF5' },
-  { key: 'sky', label: 'そら', color: '#EAF6FF' },
-  { key: 'mint', label: 'みんと', color: '#EDFBF3' },
+  { key: 'plain', label: 'むじ', labelKanji: '無地', color: '#FFFFFF' },
+  { key: 'dots', label: 'みずたま', labelKanji: '水玉', color: '#FFF7E8' },
+  { key: 'grid', label: 'ほうがん', labelKanji: '方眼', color: '#F3F9FF' },
+  { key: 'lined', label: 'せんつき', labelKanji: '線付き', color: '#FFFDF5' },
+  { key: 'sky', label: 'そら', labelKanji: '空', color: '#EAF6FF' },
+  { key: 'mint', label: 'みんと', labelKanji: 'ミント', color: '#EDFBF3' },
 ] as const;
 
 export function backgroundColor(key: string): string {

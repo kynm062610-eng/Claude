@@ -6,11 +6,13 @@ import { WatchModeBadge } from '../src/components/WatchModeBadge';
 import { GuardianEventBanner } from '../src/components/GuardianEventBanner';
 import { fetchMyGroups, fetchNotebooksForGroups } from '../src/api';
 import { useSession } from '../src/lib/session';
+import { useUiText } from '../src/lib/uiText';
 import { colors, fontSize, radius, spacing } from '../src/theme';
 import type { Group, Notebook } from '../src/types';
 
 export default function Home() {
   const { child, loading } = useSession();
+  const { t } = useUiText();
   const [groups, setGroups] = useState<Group[]>([]);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [fetching, setFetching] = useState(true);
@@ -43,15 +45,18 @@ export default function Home() {
       <WatchModeBadge mode={child.watch_mode} />
       <GuardianEventBanner childId={child.id} />
 
-      <Title>こんにちは、{child.nickname}</Title>
+      <Title>{t('こんにちは、', 'こんにちは、')}{child.nickname}</Title>
 
       {fetching && groups.length === 0 ? (
         <Loading />
       ) : groups.length === 0 ? (
         <Card>
-          <Body>まだ グループが ないよ。</Body>
+          <Body>{t('まだ グループが ないよ。', 'まだグループがないよ。')}</Body>
           <Body muted>
-            あたらしく つくるか、ともだちから もらった 6もじの コードで はいってみよう。
+            {t(
+              'あたらしく つくるか、ともだちから もらった 6もじの コードで はいってみよう。',
+              '新しく作るか、友達からもらった6文字のコードで入ってみよう。',
+            )}
           </Body>
         </Card>
       ) : (
@@ -63,18 +68,18 @@ export default function Home() {
                 <Text style={styles.groupName}>{group.name}</Text>
                 {isMyTurn && (
                   <View style={styles.turnBadge}>
-                    <Text style={styles.turnBadgeText}>あなたの ばん！</Text>
+                    <Text style={styles.turnBadgeText}>{t('あなたの ばん！', 'あなたの番！')}</Text>
                   </View>
                 )}
               </View>
-              <Text style={styles.code}>あいことば: {group.invite_code}</Text>
+              <Text style={styles.code}>{t('あいことば', '合言葉')}: {group.invite_code}</Text>
             </Card>
           );
         })
       )}
 
-      <BigButton label="グループに はいる" onPress={() => router.push('/group/join')} />
-      <BigButton label="せってい" variant="secondary" onPress={() => router.push('/settings')} />
+      <BigButton label={t('グループに はいる', 'グループに入る')} onPress={() => router.push('/group/join')} />
+      <BigButton label={t('せってい', '設定')} variant="secondary" onPress={() => router.push('/settings')} />
     </Screen>
   );
 }

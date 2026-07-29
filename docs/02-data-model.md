@@ -28,7 +28,7 @@ Supabase Auth の `auth.users` と 1:1。子どもは Auth ユーザーを持た
 | `avatar_key` | text | プリセットアバターのキー |
 | `grade` | int | 1〜6。同意要否の判定と表示調整に使う |
 | `watch_mode` | text | `off` / `notify_only` / `full`。**既定 `off`** |
-| `furigana_enabled` | bool | 既定 true |
+| `furigana_enabled` | bool | 既定 true。true ならひらがな中心の表示、false なら漢字を含む表示（設定画面の「ひらがな / かんじ」ボタン。中学生・高校生の利用も想定） |
 | `quiet_hours_start` | int | 既定 21（時） |
 | `quiet_hours_end` | int | 既定 6（時） |
 | `deleted_at` | timestamptz | 退会時の論理削除 |

@@ -122,36 +122,53 @@ export const personalInfoPatterns: { key: string; pattern: RegExp }[] = [
   { key: 'sns_id', pattern: /(line|らいん|インスタ|いんすた|tiktok)\s*(id|ID|あいでぃー)?[:：]?\s*\S+/i },
 ];
 
+/** ひらがな中心の文言と、かんじを含む文言のペア。settings のかんじモードに対応する。 */
+export type BilingualMessage = { kana: string; kanji: string };
+
 /** カテゴリごとの扱い。`01-safety-and-privacy.md` の安全フロアに対応する。 */
 export const categoryPolicy: Record<
   ModerationCategory,
-  { severity: 'warn' | 'block'; notifyGuardian: boolean; message: string }
+  { severity: 'warn' | 'block'; notifyGuardian: boolean; message: BilingualMessage }
 > = {
   violence: {
     severity: 'block',
     notifyGuardian: true,
-    message: 'この ことばは、よまれた ひとが とても かなしく なっちゃうかも。べつの いいかたに してみよう。',
+    message: {
+      kana: 'この ことばは、よまれた ひとが とても かなしく なっちゃうかも。べつの いいかたに してみよう。',
+      kanji: 'この言葉は、読まれた人がとても悲しくなっちゃうかも。別の言い方にしてみよう。',
+    },
   },
   self_harm: {
     severity: 'block',
     notifyGuardian: true,
-    message:
-      'つらい きもちを かかえて いるのかな。ひとりで がんばらなくて だいじょうぶだよ。\nおうちの人や せんせいに、いま の きもちを はなしてみてね。',
+    message: {
+      kana: 'つらい きもちを かかえて いるのかな。ひとりで がんばらなくて だいじょうぶだよ。\nおうちの人や せんせいに、いま の きもちを はなしてみてね。',
+      kanji:
+        'つらい気持ちを抱えているのかな。一人でがんばらなくて大丈夫だよ。\nおうちの人や先生に、今の気持ちを話してみてね。',
+    },
   },
   exclusion: {
     severity: 'block',
     notifyGuardian: true,
-    message: 'なかまはずれに きこえる ことばが あるみたい。ほんとうに つたえたいことは なにかな？',
+    message: {
+      kana: 'なかまはずれに きこえる ことばが あるみたい。ほんとうに つたえたいことは なにかな？',
+      kanji: '仲間はずれに聞こえる言葉があるみたい。本当に伝えたいことは何かな？',
+    },
   },
   insult: {
     severity: 'warn',
     notifyGuardian: false,
-    message: 'ちょっと きつい ことばが あるかも。やさしい いいかたに かえられそう？',
+    message: {
+      kana: 'ちょっと きつい ことばが あるかも。やさしい いいかたに かえられそう？',
+      kanji: 'ちょっときつい言葉があるかも。やさしい言い方に変えられそう？',
+    },
   },
   personal_info: {
     severity: 'warn',
     notifyGuardian: false,
-    message:
-      'でんわばんごう や じゅうしょ、がっこうの なまえは かかないほうが あんしんだよ。けしてから おくろう。',
+    message: {
+      kana: 'でんわばんごう や じゅうしょ、がっこうの なまえは かかないほうが あんしんだよ。けしてから おくろう。',
+      kanji: '電話番号や住所、学校の名前は書かないほうが安心だよ。消してから送ろう。',
+    },
   },
 };

@@ -3,9 +3,11 @@ import { StyleSheet, Text, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { BigButton, Body, Card, Screen, Title } from '../../src/components/ui';
 import { createGroup, joinGroupByCode } from '../../src/api';
+import { useUiText } from '../../src/lib/uiText';
 import { colors, fontSize, radius, spacing } from '../../src/theme';
 
 export default function JoinGroup() {
+  const { t } = useUiText();
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
@@ -21,10 +23,10 @@ export default function JoinGroup() {
       const message = e instanceof Error ? e.message : '';
       setError(
         message.includes('group_full')
-          ? 'この グループは いっぱいだよ（6にんまで）。'
+          ? t('この グループは いっぱいだよ（6にんまで）。', 'このグループはいっぱいだよ（6人まで）。')
           : message.includes('invite_code_invalid')
-            ? 'あいことばが ちがうみたい。もういちど かくにんしてね。'
-            : 'うまく いかなかったよ。もういちど ためしてみてね。',
+            ? t('あいことばが ちがうみたい。もういちど かくにんしてね。', '合言葉が違うみたい。もう一度確認してね。')
+            : t('うまく いかなかったよ。もういちど ためしてみてね。', 'うまくいかなかったよ。もう一度試してみてね。'),
       );
     } finally {
       setBusy(false);
@@ -38,7 +40,7 @@ export default function JoinGroup() {
       const groupId = await createGroup(name.trim());
       router.replace(`/group/${groupId}`);
     } catch {
-      setError('うまく いかなかったよ。もういちど ためしてみてね。');
+      setError(t('うまく いかなかったよ。もういちど ためしてみてね。', 'うまくいかなかったよ。もう一度試してみてね。'));
     } finally {
       setBusy(false);
     }
@@ -46,12 +48,12 @@ export default function JoinGroup() {
 
   return (
     <Screen>
-      <Title>あいことばで はいる</Title>
+      <Title>{t('あいことばで はいる', '合言葉で入る')}</Title>
       <Card>
         <TextInput
           style={styles.codeInput}
           value={code}
-          onChangeText={(t) => setCode(t.toUpperCase())}
+          onChangeText={(value) => setCode(value.toUpperCase())}
           autoCapitalize="characters"
           autoCorrect={false}
           maxLength={6}
@@ -59,22 +61,22 @@ export default function JoinGroup() {
           placeholderTextColor={colors.textMuted}
         />
       </Card>
-      <BigButton label="はいる" onPress={join} disabled={code.length !== 6} loading={busy} />
+      <BigButton label={t('はいる', '入る')} onPress={join} disabled={code.length !== 6} loading={busy} />
 
-      <Title>あたらしく つくる</Title>
-      <Body muted>グループは 6にんまで はいれるよ。</Body>
+      <Title>{t('あたらしく つくる', '新しく作る')}</Title>
+      <Body muted>{t('グループは 6にんまで はいれるよ。', 'グループは6人まで入れるよ。')}</Body>
       <Card>
         <TextInput
           style={styles.nameInput}
           value={name}
           onChangeText={setName}
           maxLength={30}
-          placeholder="グループの なまえ"
+          placeholder={t('グループの なまえ', 'グループの名前')}
           placeholderTextColor={colors.textMuted}
         />
       </Card>
       <BigButton
-        label="つくる"
+        label={t('つくる', '作る')}
         variant="secondary"
         onPress={create}
         disabled={name.trim().length === 0}

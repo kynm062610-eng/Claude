@@ -11,20 +11,22 @@ import {
   toggleReaction,
 } from '../../src/api';
 import { useSession } from '../../src/lib/session';
+import { useUiText } from '../../src/lib/uiText';
 import { reactionEmojis } from '../../src/data/assets';
 import { MIN_TAP, colors, fontSize, radius, spacing } from '../../src/theme';
 import type { Page, Reaction } from '../../src/types';
 
-const reportReasons: { key: string; label: string }[] = [
-  { key: 'mean', label: 'いじわるな ことばが ある' },
-  { key: 'scary', label: 'こわい / ふあんに なる' },
-  { key: 'personal_info', label: 'じゅうしょや でんわばんごうが ある' },
-  { key: 'other', label: 'そのほか' },
+const reportReasons: { key: string; kana: string; kanji: string }[] = [
+  { key: 'mean', kana: 'いじわるな ことばが ある', kanji: '意地悪な言葉がある' },
+  { key: 'scary', kana: 'こわい / ふあんに なる', kanji: '怖い／不安になる' },
+  { key: 'personal_info', kana: 'じゅうしょや でんわばんごうが ある', kanji: '住所や電話番号がある' },
+  { key: 'other', kana: 'そのほか', kanji: 'そのほか' },
 ];
 
 export default function PageScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { child } = useSession();
+  const { t } = useUiText();
   const [page, setPage] = useState<Page | null>(null);
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,8 +53,8 @@ export default function PageScreen() {
   if (!page) {
     return (
       <Screen>
-        <Body>ページが みつからなかったよ。</Body>
-        <BigButton label="もどる" variant="secondary" onPress={() => router.back()} />
+        <Body>{t('ページが みつからなかったよ。', 'ページが見つからなかったよ。')}</Body>
+        <BigButton label={t('もどる', '戻る')} variant="secondary" onPress={() => router.back()} />
       </Screen>
     );
   }
@@ -74,34 +76,41 @@ export default function PageScreen() {
 
   /** 通報。見まもりモードの値に関係なく、いつでも使える。 */
   const onReport = () => {
-    Alert.alert('しらせる', 'どうしたのか おしえてね。', [
+    Alert.alert(t('しらせる', '知らせる'), t('どうしたのか おしえてね。', 'どうしたのか教えてね。'), [
       ...reportReasons.map((reason) => ({
-        text: reason.label,
+        text: t(reason.kana, reason.kanji),
         onPress: async () => {
           try {
             await reportPage(page.id, reason.key);
-            Alert.alert('ありがとう', 'おとなの人が かくにんするね。');
+            Alert.alert(t('ありがとう', 'ありがとう'), t('おとなの人が かくにんするね。', '大人の人が確認するね。'));
           } catch {
-            Alert.alert('おくれなかったよ', 'もういちど ためしてみてね。');
+            Alert.alert(
+              t('おくれなかったよ', '送れなかったよ'),
+              t('もういちど ためしてみてね。', 'もう一度試してみてね。'),
+            );
           }
         },
       })),
-      { text: 'やめる', style: 'cancel' as const },
+      { text: t('やめる', 'やめる'), style: 'cancel' as const },
     ]);
   };
 
   const onBlock = () => {
     if (page.author_child_id === child.id) return;
-    Alert.alert('この人の ページを かくす？', 'これから この人の ページは 見えなくなるよ。', [
-      { text: 'やめる', style: 'cancel' },
-      {
-        text: 'かくす',
-        onPress: async () => {
-          await blockChild(child.id, page.author_child_id);
-          router.back();
+    Alert.alert(
+      t('この人の ページを かくす？', 'この人のページを隠す？'),
+      t('これから この人の ページは 見えなくなるよ。', 'これからこの人のページは見えなくなるよ。'),
+      [
+        { text: t('やめる', 'やめる'), style: 'cancel' },
+        {
+          text: t('かくす', '隠す'),
+          onPress: async () => {
+            await blockChild(child.id, page.author_child_id);
+            router.back();
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const countOf = (emoji: string) => reactions.filter((r) => r.emoji === emoji).length;
@@ -112,7 +121,7 @@ export default function PageScreen() {
     <Screen>
       {page.prompt_text && (
         <Card>
-          <Text style={styles.promptLabel}>おだい</Text>
+          <Text style={styles.promptLabel}>{t('おだい', 'お題')}</Text>
           <Body>{page.prompt_text}</Body>
         </Card>
       )}
@@ -134,9 +143,13 @@ export default function PageScreen() {
         ))}
       </View>
 
-      <BigButton label="おとなの人に しらせる" variant="secondary" onPress={onReport} />
+      <BigButton label={t('おとなの人に しらせる', '大人の人に知らせる')} variant="secondary" onPress={onReport} />
       {page.author_child_id !== child.id && (
-        <BigButton label="この人の ページを かくす" variant="secondary" onPress={onBlock} />
+        <BigButton
+          label={t('この人の ページを かくす', 'この人のページを隠す')}
+          variant="secondary"
+          onPress={onBlock}
+        />
       )}
     </Screen>
   );

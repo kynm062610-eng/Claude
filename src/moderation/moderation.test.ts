@@ -108,7 +108,8 @@ describe('checkText', () => {
 
   it('self_harm のメッセージは責めずに相談を促す文言にする', () => {
     const result = checkText('死にたい');
-    assert.ok(result.message?.includes('おうちの人'));
+    assert.ok(result.message?.kana.includes('おうちの人'));
+    assert.ok(result.message?.kanji.includes('おうちの人'));
   });
 
   it('「死んで」単体の断片は warn にとどめ、強制ブロックしない', () => {

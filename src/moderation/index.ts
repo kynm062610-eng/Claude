@@ -3,10 +3,11 @@ import {
   categoryPolicy,
   personalInfoPatterns,
   wordRules,
+  type BilingualMessage,
   type ModerationCategory,
 } from './rules.ts';
 
-export type { ModerationCategory };
+export type { BilingualMessage, ModerationCategory };
 
 export type Finding = {
   category: ModerationCategory;
@@ -18,8 +19,8 @@ export type ModerationResult = {
   /** ok = そのまま投稿してよい / warn = 確認を出す / block = 直すまで投稿させない */
   severity: 'ok' | 'warn' | 'block';
   findings: Finding[];
-  /** 子どもに見せる文言。責める言い方にしない。 */
-  message: string | null;
+  /** 子どもに見せる文言（ひらがな版・かんじ版）。責める言い方にしない。 */
+  message: BilingualMessage | null;
   /**
    * 保護者へ通知すべきか。
    * 見まもりモードの値に関係なく作動する「安全フロア」に対応する。
@@ -67,7 +68,7 @@ export function checkText(input: string): ModerationResult {
 
   let severity: ModerationResult['severity'] = 'ok';
   let notifyGuardian = false;
-  let message: string | null = null;
+  let message: BilingualMessage | null = null;
 
   for (const finding of findings) {
     const policy = categoryPolicy[finding.category];

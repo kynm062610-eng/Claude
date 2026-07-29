@@ -108,10 +108,13 @@ describe('promptOfTheDay', () => {
   it('同じ日なら同じお題を返す', () => {
     const a = promptOfTheDay(new Date(2026, 5, 1, 9));
     const b = promptOfTheDay(new Date(2026, 5, 1, 20));
-    assert.equal(a, b);
+    assert.deepEqual(a, b);
   });
 
-  it('お題プールの中から返す', () => {
-    assert.ok(prompts.includes(promptOfTheDay(new Date(2026, 2, 3))));
+  it('お題プールの中から返す（ひらがな版・かんじ版の両方を持つ）', () => {
+    const picked = promptOfTheDay(new Date(2026, 2, 3));
+    assert.ok(prompts.some((p) => p.kana === picked.kana && p.kanji === picked.kanji));
+    assert.ok(picked.kana.length > 0);
+    assert.ok(picked.kanji.length > 0);
   });
 });
