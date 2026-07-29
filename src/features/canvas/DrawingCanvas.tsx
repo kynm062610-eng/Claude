@@ -45,12 +45,28 @@ export function DrawingCanvas({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
+  // 自分がさっき親へ送った elements を覚えておく。親から返ってきた content.elements が
+  // これと同じなら「自分の更新が一周してきただけ」なので無視し、違うなら「テキスト追加
+  // ボタンや背景変更など、このコンポーネントの外側で elements が変わった」と判断して
+  // 取り込む。この双方向の同期がないと、外側からの変更（もじを「いれる」等）が
+  // 画面に反映されないまま消えてしまう。
+  const lastEmittedElements = useRef(content.elements);
+
+  useEffect(() => {
+    if (content.elements !== lastEmittedElements.current) {
+      lastEmittedElements.current = content.elements;
+      setElements(content.elements);
+    }
+  }, [content.elements]);
+
   const isFirstRun = useRef(true);
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
       return;
     }
+    if (elements === lastEmittedElements.current) return;
+    lastEmittedElements.current = elements;
     onChangeRef.current({ ...contentRef.current, elements });
   }, [elements]);
 

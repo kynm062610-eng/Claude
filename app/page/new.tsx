@@ -1,5 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useMemo, useRef, useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BigButton } from '../../src/components/ui';
@@ -21,8 +31,16 @@ export default function NewPage() {
   const [draftText, setDraftText] = useState('');
   const [usePrompt, setUsePrompt] = useState(false);
   const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const prompt = useMemo(() => promptOfTheDay(), []);
+
+  // もじ入力欄はスクロールの下のほうにあるため、キーボードが出ると隠れて
+  // 打ち込んだ文字が見えなくなることがある。フォーカス時に末尾へスクロールして
+  // 入力欄をキーボードの上に出す。
+  const scrollToTextInput = () => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+  };
 
   const addText = () => {
     const text = draftText.trim();
@@ -105,7 +123,15 @@ export default function NewPage() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+        >
         <Pressable style={styles.promptCard} onPress={() => setUsePrompt((v) => !v)}>
           <Text style={styles.promptLabel}>きょうの おだい {usePrompt ? '✓' : ''}</Text>
           <Text style={styles.promptText}>{prompt}</Text>
@@ -199,6 +225,7 @@ export default function NewPage() {
             style={styles.textInput}
             value={draftText}
             onChangeText={setDraftText}
+            onFocus={scrollToTextInput}
             placeholder="もじを かく"
             placeholderTextColor={colors.textMuted}
             maxLength={80}
@@ -215,13 +242,15 @@ export default function NewPage() {
         <BigButton label="おくる" onPress={submit} loading={busy} />
         <BigButton label="やめる" variant="secondary" onPress={() => router.back()} />
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing.md, gap: spacing.md },
+  flex: { flex: 1 },
+  scroll: { padding: spacing.md, gap: spacing.md, paddingBottom: spacing.xl * 6 },
   promptCard: {
     backgroundColor: '#FFF4D6',
     borderRadius: radius.md,
