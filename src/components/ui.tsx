@@ -21,7 +21,7 @@ export function Screen({
 }) {
   const inner = <View style={styles.screenInner}>{children}</View>;
   return (
-    <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.screen} edges={['top', 'left', 'right', 'bottom']}>
       {scroll ? <ScrollView contentContainerStyle={styles.scroll}>{inner}</ScrollView> : inner}
     </SafeAreaView>
   );
