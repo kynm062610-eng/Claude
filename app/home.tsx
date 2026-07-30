@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { BigButton, Body, Card, Loading, Screen, Title } from '../src/components/ui';
@@ -8,6 +8,7 @@ import { fetchMyGroups, fetchNotebooksForGroups } from '../src/api';
 import { useSession } from '../src/lib/session';
 import { useUiText } from '../src/lib/uiText';
 import { questionOfTheWeek } from '../src/data/weeklyQuestions';
+import { registerForPushNotifications } from '../src/lib/push';
 import { colors, fontSize, radius, spacing } from '../src/theme';
 import type { Group, Notebook } from '../src/types';
 
@@ -35,6 +36,15 @@ export default function Home() {
       void load();
     }, [load]),
   );
+
+  // 通知の登録は子どものプロフィールが確定してから一度だけ。
+  // 失敗しても（許可されなかった・実機でない等）アプリの操作は止めない。
+  const pushRegistered = useRef(false);
+  useEffect(() => {
+    if (!child || pushRegistered.current) return;
+    pushRegistered.current = true;
+    void registerForPushNotifications().catch(() => undefined);
+  }, [child]);
 
   if (loading || !child) return <Loading />;
 

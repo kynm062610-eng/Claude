@@ -17,6 +17,16 @@ import type {
 /* プロフィール                                                         */
 /* ------------------------------------------------------------------ */
 
+/**
+ * children から読み出す列。`*` を使わない。
+ *
+ * push_token はクライアントから読めないよう列ごとの権限で閉じている
+ * （同じグループの子が互いのトークンを読めると、偽の通知を送れてしまう）。
+ * `*` だと権限のない列まで要求してクエリ全体が失敗するため、明示列を使う。
+ */
+const CHILD_COLUMNS =
+  'id, guardian_id, auth_user_id, nickname, avatar_key, grade, watch_mode, furigana_enabled, quiet_hours_start, quiet_hours_end, deleted_at, created_at';
+
 /** 子ども端末: 匿名サインインしたあと、保護者が発行したリンクコードで受け取る */
 export async function claimChildProfile(linkCode: string): Promise<string> {
   const { data, error } = await supabase.rpc('claim_child_profile', {
@@ -29,7 +39,7 @@ export async function claimChildProfile(linkCode: string): Promise<string> {
 export async function fetchMyChildProfile(authUserId: string): Promise<Child | null> {
   const { data, error } = await supabase
     .from('children')
-    .select('*')
+    .select(CHILD_COLUMNS)
     .eq('auth_user_id', authUserId)
     .maybeSingle();
   if (error) throw error;
@@ -53,9 +63,21 @@ export async function createChild(args: {
 }
 
 export async function fetchChildrenOfGuardian(): Promise<Child[]> {
-  const { data, error } = await supabase.from('children').select('*').is('deleted_at', null);
+  const { data, error } = await supabase
+    .from('children')
+    .select(CHILD_COLUMNS)
+    .is('deleted_at', null);
   if (error) throw error;
   return (data ?? []) as Child[];
+}
+
+/**
+ * この端末のプッシュ通知トークンを保存する。
+ * トークンは他の子から読めない列なので、書き込みも RPC を通す。
+ */
+export async function setMyPushToken(token: string): Promise<void> {
+  const { error } = await supabase.rpc('set_my_push_token', { p_token: token });
+  if (error) throw error;
 }
 
 export async function updateChildPreferences(
@@ -137,7 +159,7 @@ export async function fetchMembers(groupId: string): Promise<Child[]> {
   if (memberships.length === 0) return [];
   const { data, error } = await supabase
     .from('children')
-    .select('*')
+    .select(CHILD_COLUMNS)
     .in('id', memberships.map((m) => m.child_id));
   if (error) throw error;
 

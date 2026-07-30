@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotifications } from '../src/lib/push';
 import { BigButton, Body, Card, Loading, Screen, Title } from '../src/components/ui';
 import { WatchModeBadge } from '../src/components/WatchModeBadge';
 import { updateChildPreferences } from '../src/api';
@@ -13,6 +15,30 @@ export default function Settings() {
   const { child, refresh } = useSession();
   const { t, useKana } = useUiText();
   const [saving, setSaving] = useState(false);
+  const [pushGranted, setPushGranted] = useState<boolean | null>(null);
+
+  const checkPush = useCallback(async () => {
+    try {
+      const status = await Notifications.getPermissionsAsync();
+      setPushGranted(status.granted);
+    } catch {
+      setPushGranted(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    void checkPush();
+  }, [checkPush]);
+
+  const enablePush = async () => {
+    const result = await registerForPushNotifications().catch(() => null);
+    if (result?.status === 'registered') {
+      setPushGranted(true);
+      return;
+    }
+    // 一度断ると OS のダイアログは二度目が出ないため、設定アプリへ案内する
+    await Linking.openSettings().catch(() => undefined);
+  };
 
   if (!child) return <Loading />;
 
@@ -43,6 +69,28 @@ export default function Settings() {
           variant="secondary"
           onPress={() => router.push('/profile/edit')}
         />
+      </Card>
+
+      <Card>
+        <Body muted>{t('おしらせ', 'お知らせ')}</Body>
+        <Body>
+          {pushGranted === true
+            ? t(
+                'じゅんばんが きたら おしらせが とどくよ。',
+                '順番が来たらお知らせが届くよ。',
+              )
+            : t(
+                'いまは おしらせが とどかないよ。じゅんばんが きたことに きづけるように しておこう。',
+                '今はお知らせが届かないよ。順番が来たことに気づけるようにしておこう。',
+              )}
+        </Body>
+        {pushGranted !== true && (
+          <BigButton
+            label={t('おしらせを うけとる', 'お知らせを受け取る')}
+            variant="secondary"
+            onPress={() => void enablePush()}
+          />
+        )}
       </Card>
 
       <Card>

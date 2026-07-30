@@ -1,12 +1,27 @@
-import React from 'react';
-import { Stack } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Stack, router } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from 'expo-notifications';
 import { SessionProvider } from '../src/lib/session';
+import { configureNotificationHandler } from '../src/lib/push';
 import { colors } from '../src/theme';
 
+configureNotificationHandler();
+
 export default function RootLayout() {
+  // 通知をタップしたら、該当のノートを開く
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const notebookId = response.notification.request.content.data?.notebookId;
+      if (typeof notebookId === 'string' && notebookId.length > 0) {
+        router.push(`/notebook/${notebookId}`);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

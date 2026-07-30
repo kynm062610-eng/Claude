@@ -41,3 +41,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase（プッシュ通知）。プロジェクト固有の設定なので共有しない
+google-services.json

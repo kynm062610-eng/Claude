@@ -25,7 +25,13 @@
     },
     "scheme": "kokannote",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "color": "#FF8A3D"
+        }
+      ]
     ]
   }
 }

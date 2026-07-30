@@ -36,9 +36,12 @@ export function SessionProvider({ children: node }: { children: React.ReactNode 
       return;
     }
 
+    // push_token は列ごとの権限で閉じているため `*` は使えない（src/api の CHILD_COLUMNS と同じ）
     const { data: childRow } = await supabase
       .from('children')
-      .select('*')
+      .select(
+        'id, guardian_id, auth_user_id, nickname, avatar_key, grade, watch_mode, furigana_enabled, quiet_hours_start, quiet_hours_end, deleted_at, created_at',
+      )
       .eq('auth_user_id', current.user.id)
       .maybeSingle();
 
