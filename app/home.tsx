@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { BigButton, Body, Card, Loading, Screen, Title } from '../src/components/ui';
@@ -7,12 +7,14 @@ import { GuardianEventBanner } from '../src/components/GuardianEventBanner';
 import { fetchMyGroups, fetchNotebooksForGroups } from '../src/api';
 import { useSession } from '../src/lib/session';
 import { useUiText } from '../src/lib/uiText';
+import { questionOfTheWeek } from '../src/data/weeklyQuestions';
 import { colors, fontSize, radius, spacing } from '../src/theme';
 import type { Group, Notebook } from '../src/types';
 
 export default function Home() {
   const { child, loading } = useSession();
   const { t } = useUiText();
+  const weekly = useMemo(() => questionOfTheWeek(), []);
   const [groups, setGroups] = useState<Group[]>([]);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [fetching, setFetching] = useState(true);
@@ -46,6 +48,12 @@ export default function Home() {
       <GuardianEventBanner childId={child.id} />
 
       <Title>{t('こんにちは、', 'こんにちは、')}{child.nickname}</Title>
+
+      {/* 自分の番でなくても目に入るように、ホームにも今週の質問を出す */}
+      <View style={styles.weeklyCard}>
+        <Text style={styles.weeklyLabel}>{t('こんしゅうの しつもん', '今週の質問')}</Text>
+        <Text style={styles.weeklyText}>{t(weekly.kana, weekly.kanji)}</Text>
+      </View>
 
       {fetching && groups.length === 0 ? (
         <Loading />
@@ -95,4 +103,14 @@ const styles = StyleSheet.create({
   },
   turnBadgeText: { fontWeight: '800', color: colors.text, fontSize: fontSize.label },
   code: { color: colors.textMuted, fontSize: fontSize.label },
+  weeklyCard: {
+    backgroundColor: '#E9F2FF',
+    borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: colors.accent,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  weeklyLabel: { fontSize: fontSize.label, fontWeight: '800', color: colors.text },
+  weeklyText: { fontSize: fontSize.body, color: colors.text, lineHeight: 26 },
 });

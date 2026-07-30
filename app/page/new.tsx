@@ -17,6 +17,7 @@ import { DrawingCanvas, type Tool } from '../../src/features/canvas/DrawingCanva
 import { raiseSafetyAlert, submitPage } from '../../src/api';
 import { checkPageTexts } from '../../src/moderation';
 import { promptOfTheDay } from '../../src/data/prompts';
+import { questionOfTheWeek } from '../../src/data/weeklyQuestions';
 import { backgrounds, stamps } from '../../src/data/assets';
 import { useSession } from '../../src/lib/session';
 import { useUiText } from '../../src/lib/uiText';
@@ -31,12 +32,20 @@ export default function NewPage() {
   const [content, setContent] = useState<PageContent>(() => emptyPageContent('dots'));
   const [tool, setTool] = useState<Tool>({ kind: 'pen', color: penColors[0], width: penWidths[1] });
   const [draftText, setDraftText] = useState('');
-  const [usePrompt, setUsePrompt] = useState(false);
+  /** ページに添える問い。どちらか一方だけ選べる（none = 添えない） */
+  const [promptChoice, setPromptChoice] = useState<'none' | 'daily' | 'weekly'>('none');
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
-  const promptPair = useMemo(() => promptOfTheDay(), []);
-  const prompt = t(promptPair.kana, promptPair.kanji);
+  const dailyPair = useMemo(() => promptOfTheDay(), []);
+  const weeklyPair = useMemo(() => questionOfTheWeek(), []);
+  const dailyPrompt = t(dailyPair.kana, dailyPair.kanji);
+  const weeklyPrompt = t(weeklyPair.kana, weeklyPair.kanji);
+  const selectedPrompt =
+    promptChoice === 'daily' ? dailyPrompt : promptChoice === 'weekly' ? weeklyPrompt : null;
+
+  const togglePrompt = (choice: 'daily' | 'weekly') =>
+    setPromptChoice((current) => (current === choice ? 'none' : choice));
 
   // もじ入力欄はスクロールの下のほうにあるため、キーボードが出ると隠れて
   // 打ち込んだ文字が見えなくなることがある。フォーカス時に末尾へスクロールして
@@ -97,7 +106,7 @@ export default function NewPage() {
         await submitPage({
           notebookId,
           content,
-          promptText: usePrompt ? prompt : null,
+          promptText: selectedPrompt,
         });
         router.replace(`/notebook/${notebookId}`);
       } catch (e) {
@@ -135,9 +144,28 @@ export default function NewPage() {
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
         >
-          <Pressable style={styles.promptCard} onPress={() => setUsePrompt((v) => !v)}>
-            <Text style={styles.promptLabel}>{t('きょうの おだい', '今日のお題')} {usePrompt ? '✓' : ''}</Text>
-            <Text style={styles.promptText}>{prompt}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: promptChoice === 'daily' }}
+            style={[styles.promptCard, promptChoice === 'daily' && styles.promptCardOn]}
+            onPress={() => togglePrompt('daily')}
+          >
+            <Text style={styles.promptLabel}>
+              {t('きょうの おだい', '今日のお題')} {promptChoice === 'daily' ? '✓' : ''}
+            </Text>
+            <Text style={styles.promptText}>{dailyPrompt}</Text>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: promptChoice === 'weekly' }}
+            style={[styles.weeklyCard, promptChoice === 'weekly' && styles.promptCardOn]}
+            onPress={() => togglePrompt('weekly')}
+          >
+            <Text style={styles.promptLabel}>
+              {t('こんしゅうの しつもん', '今週の質問')} {promptChoice === 'weekly' ? '✓' : ''}
+            </Text>
+            <Text style={styles.promptText}>{weeklyPrompt}</Text>
           </Pressable>
 
           <DrawingCanvas content={content} onChange={setContent} tool={tool} />
@@ -266,6 +294,16 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.xs,
   },
+  weeklyCard: {
+    backgroundColor: '#E9F2FF',
+    borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: colors.accent,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  /** 選ばれている問いは枠を太くして分かるようにする */
+  promptCardOn: { borderWidth: 4, borderColor: colors.primary },
   promptLabel: { fontSize: fontSize.label, fontWeight: '800', color: colors.text },
   promptText: { fontSize: fontSize.body, color: colors.text },
   toolRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
