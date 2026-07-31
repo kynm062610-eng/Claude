@@ -56,6 +56,31 @@ def get_client(api_key: str) -> YouTubeClient:
     return YouTubeClient(api_key)
 
 
+def set_result(name: str, payload: dict) -> None:
+    """分析結果を保持する。ファイル保存等で画面が再読み込みされても消えないようにする。"""
+    st.session_state[f"result_{name}"] = payload
+    storage.save_result(name, payload)
+
+
+def get_result(name: str) -> dict | None:
+    key = f"result_{name}"
+    if key in st.session_state:
+        return st.session_state[key]
+    restored = storage.load_result(name)
+    if restored is not None:
+        st.session_state[key] = restored
+    return restored
+
+
+def keep_expander_open(name: str) -> None:
+    """保存ボタン等で画面が再描画されても、開いていたパネルを閉じさせない。"""
+    st.session_state[f"open_{name}"] = True
+
+
+def is_expander_open(name: str) -> bool:
+    return st.session_state.get(f"open_{name}", False)
+
+
 def videos_to_df(videos) -> pd.DataFrame:
     if not videos:
         return pd.DataFrame()
@@ -140,7 +165,9 @@ def render_pattern_analysis(df: pd.DataFrame, label: str, key: str):
     """タイトル・タグ・ハッシュタグ・サムネイル色の傾向をまとめて表示する。"""
     if df.empty:
         return
-    with st.expander("📊 傾向分析(似た動画の企画ヒント)"):
+    with st.expander(
+        "📊 傾向分析(似た動画の企画ヒント)", expanded=is_expander_open(f"{key}_pattern")
+    ):
         insights = analysis.growth_insights(df)
         if insights:
             st.markdown("**📈 伸びている動画の共通点(推定)**")
@@ -203,7 +230,7 @@ def render_comment_analysis(df: pd.DataFrame, key: str):
     if df.empty:
         return
 
-    with st.expander("💬 視聴者コメントの反応分析"):
+    with st.expander("💬 視聴者コメントの反応分析", expanded=is_expander_open(f"{key}_comment")):
         target_count = pick_count(
             "コメントを読む動画数(再生数の多い順)", f"{key}_comment_videos", [3, 5, 10], 5
         )
@@ -218,8 +245,14 @@ def render_comment_analysis(df: pd.DataFrame, key: str):
                 progress.progress(i / len(targets), text=f"コメントを取得しています... {i}/{len(targets)}本")
             progress.empty()
             st.session_state[f"comments_{key}"] = comments
+            storage.save_comments(key, comments)
+            keep_expander_open(f"{key}_comment")
 
         comments = st.session_state.get(f"comments_{key}")
+        if comments is None:
+            comments = storage.load_comments(key)
+            if comments is not None:
+                st.session_state[f"comments_{key}"] = comments
         if comments is None:
             return
         if not comments:
@@ -261,7 +294,7 @@ def render_download_section(df: pd.DataFrame, label: str, key: str):
     with st.container(border=True):
         st.markdown("### 💾 この分析結果を保存する")
         col_txt, col_csv = st.columns(2)
-        col_txt.download_button(
+        saved_txt = col_txt.download_button(
             "📄 レポートを保存",
             data=report.build_text_report(df, label).encode("utf-8"),
             file_name=f"{safe_label}_{stamp}.txt",
@@ -270,7 +303,7 @@ def render_download_section(df: pd.DataFrame, label: str, key: str):
             use_container_width=True,
             type="primary",
         )
-        col_csv.download_button(
+        saved_csv = col_csv.download_button(
             "📊 一覧を保存(CSV)",
             data=("﻿" + report.build_csv(df)).encode("utf-8"),
             file_name=f"{safe_label}_{stamp}.csv",
@@ -278,6 +311,9 @@ def render_download_section(df: pd.DataFrame, label: str, key: str):
             key=f"dl_csv_{key}",
             use_container_width=True,
         )
+        if saved_txt or saved_csv:
+            # 保存後の再描画で、開いていたパネルが閉じてしまわないようにする
+            keep_expander_open(key)
         st.caption("ボタンを押したあと「\"ファイル\"に保存」を選ぶと、iPhone内に残せます。")
 
 
@@ -378,16 +414,17 @@ with tab_own:
             else:
                 stats = client.get_channel_stats(channel_id)
                 df = videos_to_df(client.get_channel_videos(channel_id, max_videos_own))
-                st.session_state.result_own = {
+                set_result("own", {
                     "df": df,
                     "label": f"自分のチャンネル_{stats.title}",
                     "subscriber_count": stats.subscriber_count,
                     "view_count": stats.view_count,
                     "video_count": stats.video_count,
-                }
+                })
 
-    if st.session_state.get("result_own"):
-        render_channel_result(st.session_state.result_own, "own")
+    own_res = get_result("own")
+    if own_res:
+        render_channel_result(own_res, "own")
 
 # ----------------------------------------------------------------------
 # トレンド調査
@@ -410,9 +447,9 @@ with tab_trend:
             df = videos_to_df(client.search_trending_videos(
                 keyword, max_results=max_trend, published_within_days=days, order=order
             ))
-            st.session_state.result_trend = {"df": df, "label": f"トレンド調査_{keyword}"}
+            set_result("trend", {"df": df, "label": f"トレンド調査_{keyword}"})
 
-    trend_res = st.session_state.get("result_trend")
+    trend_res = get_result("trend")
     if trend_res:
         df = trend_res["df"]
         st.divider()
@@ -430,12 +467,12 @@ with tab_trend:
     region = st.selectbox("地域", ["JP", "US", "KR", "GB"], key="popular_region")
     if st.button("急上昇動画を見る", key="popular_run"):
         with st.spinner("取得しています..."):
-            st.session_state.result_popular = {
+            set_result("popular", {
                 "df": videos_to_df(client.get_most_popular(region_code=region, max_results=25)),
                 "label": f"急上昇動画_{region}",
-            }
+            })
 
-    popular_res = st.session_state.get("result_popular")
+    popular_res = get_result("popular")
     if popular_res:
         render_download_section(popular_res["df"], popular_res["label"], "popular")
         render_video_table(popular_res["df"])
@@ -477,13 +514,13 @@ with tab_competitor:
                 all_videos = []
                 for c in saved_competitors:
                     all_videos.extend(client.get_channel_videos(c["channel_id"], combined_max))
-                st.session_state.result_combined = {
+                set_result("combined", {
                     "df": videos_to_df(all_videos),
                     "label": "競合まとめ分析",
                     "channel_count": len(saved_competitors),
-                }
+                })
 
-        combined_res = st.session_state.get("result_combined")
+        combined_res = get_result("combined")
         if combined_res:
             combined_df = combined_res["df"]
             st.divider()
@@ -532,13 +569,14 @@ with tab_competitor:
             else:
                 stats = client.get_channel_stats(channel_id)
                 df = videos_to_df(client.get_channel_videos(channel_id, max_videos_competitor))
-                st.session_state.result_competitor = {
+                set_result("competitor", {
                     "df": df,
                     "label": f"競合_{stats.title}",
                     "subscriber_count": stats.subscriber_count,
                     "view_count": stats.view_count,
                     "video_count": stats.video_count,
-                }
+                })
 
-    if st.session_state.get("result_competitor"):
-        render_channel_result(st.session_state.result_competitor, "competitor")
+    competitor_res = get_result("competitor")
+    if competitor_res:
+        render_channel_result(competitor_res, "competitor")
