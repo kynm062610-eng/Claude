@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import re
 from collections import Counter
 from io import BytesIO
@@ -126,6 +127,146 @@ def growth_insights(df: pd.DataFrame, top_ratio: float = 0.25, min_videos: int =
             insights.append(f"上位動画は「{counts.index[0]}」の投稿が多い({counts.iloc[0]}/{len(top)}本)")
 
     return insights
+
+
+JST = dt.timezone(dt.timedelta(hours=9))
+
+_TIME_BANDS = [
+    (0, 6, "深夜(0〜6時)"),
+    (6, 12, "午前(6〜12時)"),
+    (12, 18, "午後(12〜18時)"),
+    (18, 24, "夜(18〜24時)"),
+]
+
+
+def _jst_hours(series: pd.Series) -> pd.Series:
+    """UTCの投稿日時を日本時間の「時」に変換する。"""
+    times = pd.to_datetime(series, utc=True)
+    return times.dt.tz_convert(JST).dt.hour
+
+
+def posting_hour_distribution(df: pd.DataFrame) -> pd.DataFrame:
+    """0〜23時それぞれの投稿本数を日本時間で集計する。"""
+    if df is None or df.empty or "published_at" not in df.columns:
+        return pd.DataFrame()
+    hours = _jst_hours(df["published_at"])
+    counts = hours.value_counts().reindex(range(24), fill_value=0).sort_index()
+    return pd.DataFrame({"投稿数": counts.values}, index=[f"{h}時" for h in range(24)])
+
+
+def posting_time_insights(df: pd.DataFrame, top_ratio: float = 0.25, min_videos: int = 4) -> list[str]:
+    """投稿時間帯の偏りと、再生数との関係を言語化する。"""
+    if df is None or len(df) < min_videos or "published_at" not in df.columns:
+        return []
+
+    df = df.sort_values("view_count", ascending=False).reset_index(drop=True)
+    hours = _jst_hours(df["published_at"])
+    insights: list[str] = []
+
+    band_of = lambda h: next(name for lo, hi, name in _TIME_BANDS if lo <= h < hi)  # noqa: E731
+    bands = hours.map(band_of)
+    band_counts = bands.value_counts()
+    if not band_counts.empty and band_counts.iloc[0] / len(df) >= 0.35:
+        insights.append(
+            f"投稿は「{band_counts.index[0]}」に集中({band_counts.iloc[0]}/{len(df)}本)"
+        )
+
+    hour_counts = hours.value_counts()
+    if not hour_counts.empty and hour_counts.iloc[0] >= 2:
+        insights.append(f"最も多い投稿時刻は{hour_counts.index[0]}時台({hour_counts.iloc[0]}本)")
+
+    cutoff = max(1, round(len(df) * top_ratio))
+    top_bands = bands.iloc[:cutoff]
+    if len(top_bands) >= 2:
+        top_band_counts = top_bands.value_counts()
+        leader = top_band_counts.index[0]
+        share = top_band_counts.iloc[0] / len(top_bands)
+        overall_share = (bands == leader).sum() / len(bands)
+        if share >= 0.5 and share > overall_share * 1.2:
+            insights.append(
+                f"再生数上位の動画は「{leader}」の投稿が多い"
+                f"(上位の{share:.0%} / 全体では{overall_share:.0%})"
+            )
+
+    return insights
+
+
+# コメントの感情分類に使うキーワード辞書。文脈は読まないため、あくまで傾向の目安。
+_SENTIMENT_LEXICON: dict[str, tuple[str, ...]] = {
+    "称賛・好意": (
+        "すごい", "スゴい", "凄い", "最高", "神", "天才", "面白", "おもしろ", "好き",
+        "素晴らし", "うまい", "上手", "かわい", "可愛", "かっこい", "カッコい", "感動",
+        "優しい", "良い", "いいね", "美しい", "尊い",
+    ),
+    "笑い": ("www", "ｗｗｗ", "草", "笑った", "爆笑", "わろた", "笑う"),
+    "感謝": ("ありがと", "感謝", "助かっ", "参考になっ", "勉強になっ", "為になっ", "ためになっ"),
+    "共感": ("わかる", "分かる", "同じ", "私も", "俺も", "僕も", "それな", "共感", "あるある"),
+    "驚き": ("びっくり", "驚い", "まじ", "マジ", "えぐ", "やば", "衝撃", "信じられ"),
+    "応援・期待": ("頑張", "がんば", "応援", "期待", "楽しみ", "待って", "次回", "登録した"),
+    "要望・質問": ("してほしい", "して欲しい", "教えて", "知りたい", "リクエスト", "お願い", "ですか"),
+    "批判・不満": (
+        "つまらな", "つまんな", "うざ", "嫌い", "最悪", "ひど", "下手", "残念",
+        "微妙", "意味不明", "萎え", "がっかり",
+    ),
+}
+
+
+def comment_sentiment(comments: list[str]) -> dict[str, int]:
+    """コメントをキーワードで感情カテゴリに分類し、該当件数を数える。
+
+    1つのコメントが複数カテゴリに該当することがある。
+    """
+    counts = {label: 0 for label in _SENTIMENT_LEXICON}
+    for comment in comments:
+        lowered = comment.lower()
+        for label, keywords in _SENTIMENT_LEXICON.items():
+            if any(kw.lower() in lowered for kw in keywords):
+                counts[label] += 1
+    return {k: v for k, v in counts.items() if v > 0}
+
+
+def comment_word_frequency(comments: list[str], top_n: int = 20) -> list[tuple[str, int]]:
+    """コメント本文の頻出ワードを集計する。"""
+    return title_word_frequency(comments, top_n=top_n)
+
+
+def comment_insights(comments: list[str], sentiment: dict[str, int]) -> list[str]:
+    """感情の内訳から、視聴者の反応の傾向を言語化する。"""
+    if not comments:
+        return []
+
+    total = len(comments)
+    lines = [f"分析したコメント: {total}件"]
+
+    if not sentiment:
+        lines.append("目立った感情キーワードは検出されませんでした。")
+        return lines
+
+    ranked = sorted(sentiment.items(), key=lambda x: x[1], reverse=True)
+    top_label, top_count = ranked[0]
+    lines.append(f"最も多い反応は「{top_label}」({top_count}件 / 全体の{top_count/total:.0%})")
+
+    positive = sum(
+        sentiment.get(k, 0) for k in ("称賛・好意", "笑い", "感謝", "共感", "応援・期待")
+    )
+    negative = sentiment.get("批判・不満", 0)
+    if positive or negative:
+        if negative == 0:
+            lines.append("否定的なコメントはほとんど見られません")
+        elif positive >= negative * 3:
+            lines.append(f"好意的な反応が優勢(好意{positive}件 / 批判{negative}件)")
+        elif negative > positive:
+            lines.append(f"批判的な反応が目立ちます(好意{positive}件 / 批判{negative}件)")
+        else:
+            lines.append(f"賛否が分かれています(好意{positive}件 / 批判{negative}件)")
+
+    requests_count = sentiment.get("要望・質問", 0)
+    if requests_count / total >= 0.15:
+        lines.append(
+            f"要望・質問が{requests_count}件。次の企画のネタとして拾える可能性があります"
+        )
+
+    return lines
 
 
 def dominant_color(thumbnail_url: str, timeout: float = 5.0) -> str | None:

@@ -47,6 +47,19 @@ def build_text_report(df: pd.DataFrame, title: str) -> str:
         lines.append("※ データ上の相関から見える傾向であり、断定はできません。")
         lines.append("")
 
+    time_insights = analysis.posting_time_insights(df)
+    if time_insights:
+        lines.append("## 投稿時間帯の傾向(日本時間)")
+        lines.extend(f"- {line}" for line in time_insights)
+        lines.append("")
+
+    hour_dist = analysis.posting_hour_distribution(df)
+    if not hour_dist.empty:
+        active = hour_dist[hour_dist["投稿数"] > 0]
+        lines.append("## 時間帯別の投稿本数(日本時間)")
+        lines.extend(f"- {hour}: {row['投稿数']}本" for hour, row in active.iterrows())
+        lines.append("")
+
     words = analysis.title_word_frequency(df["title"].tolist())
     if words:
         lines.append("## タイトルの頻出ワード")

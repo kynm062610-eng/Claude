@@ -162,6 +162,38 @@ class YouTubeClient:
         return [self._video_from_item(item) for item in resp.get("items", [])]
 
     # ------------------------------------------------------------------
+    # コメント取得
+    # ------------------------------------------------------------------
+    def get_video_comments(self, video_id: str, max_results: int = 50) -> list[str]:
+        """動画のトップレベルコメント本文を取得する。
+
+        コメント無効・限定公開などで取得できない動画は空リストを返す。
+        """
+        comments: list[str] = []
+        page_token = None
+        try:
+            while len(comments) < max_results:
+                resp = self._youtube.commentThreads().list(
+                    part="snippet",
+                    videoId=video_id,
+                    maxResults=min(100, max_results - len(comments)),
+                    order="relevance",
+                    textFormat="plainText",
+                    pageToken=page_token,
+                ).execute()
+                for item in resp.get("items", []):
+                    snippet = item["snippet"]["topLevelComment"]["snippet"]
+                    text = snippet.get("textDisplay", "").strip()
+                    if text:
+                        comments.append(text)
+                page_token = resp.get("nextPageToken")
+                if not page_token:
+                    break
+        except HttpError:
+            return comments
+        return comments
+
+    # ------------------------------------------------------------------
     # 内部ヘルパー
     # ------------------------------------------------------------------
     def _get_videos_stats(self, video_ids: list[str]) -> list[VideoStats]:

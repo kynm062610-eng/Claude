@@ -172,6 +172,13 @@ def render_pattern_analysis(df: pd.DataFrame, label: str, key: str):
             st.markdown("**概要欄の頻出ハッシュタグ**")
             st.write(" ".join(f"`{tag}`({count})" for tag, count in hashtags))
 
+        st.markdown("**⏰ 投稿時間帯(日本時間)**")
+        hour_dist = analysis.posting_hour_distribution(df)
+        if not hour_dist.empty:
+            st.bar_chart(hour_dist)
+        for line in analysis.posting_time_insights(df):
+            st.markdown(f"- {line}")
+
         st.markdown("**上位動画のサムネイル代表色**")
         top_thumbs = df.head(8)
         swatch_cols = st.columns(max(len(top_thumbs), 1))
@@ -189,6 +196,59 @@ def render_pattern_analysis(df: pd.DataFrame, label: str, key: str):
 
         st.divider()
         render_download_section(df, label, f"{key}_pattern")
+
+
+def render_comment_analysis(df: pd.DataFrame, key: str):
+    """視聴者コメントを取得し、どんな反応が多いかを分類して見せる。"""
+    if df.empty:
+        return
+
+    with st.expander("💬 視聴者コメントの反応分析"):
+        target_count = pick_count(
+            "コメントを読む動画数(再生数の多い順)", f"{key}_comment_videos", [3, 5, 10], 5
+        )
+        st.caption("コメントの取得には動画1本あたり1ポイント使います(1日の無料枠は10,000)。")
+
+        if st.button("💬 コメントを分析する", key=f"{key}_comment_run"):
+            targets = df.head(target_count)
+            comments: list[str] = []
+            progress = st.progress(0.0, text="コメントを取得しています...")
+            for i, (_, row) in enumerate(targets.iterrows(), start=1):
+                comments.extend(client.get_video_comments(row["video_id"], max_results=50))
+                progress.progress(i / len(targets), text=f"コメントを取得しています... {i}/{len(targets)}本")
+            progress.empty()
+            st.session_state[f"comments_{key}"] = comments
+
+        comments = st.session_state.get(f"comments_{key}")
+        if comments is None:
+            return
+        if not comments:
+            st.info("コメントを取得できませんでした(コメント無効の可能性があります)。")
+            return
+
+        sentiment = analysis.comment_sentiment(comments)
+
+        st.markdown("**読み取れること**")
+        for line in analysis.comment_insights(comments, sentiment):
+            st.markdown(f"- {line}")
+        st.caption("※ キーワードによる自動分類です。皮肉や文脈までは読み取れません。")
+
+        if sentiment:
+            st.markdown("**反応の内訳**")
+            sentiment_df = pd.DataFrame(
+                sorted(sentiment.items(), key=lambda x: x[1], reverse=True),
+                columns=["反応", "件数"],
+            ).set_index("反応")
+            st.bar_chart(sentiment_df)
+
+        words = analysis.comment_word_frequency(comments)
+        if words:
+            st.markdown("**コメントの頻出ワード**")
+            st.bar_chart(pd.DataFrame(words, columns=["ワード", "回数"]).set_index("ワード"))
+
+        st.markdown("**コメントの例**")
+        for c in comments[:5]:
+            st.markdown(f"> {c[:150]}")
 
 
 def render_download_section(df: pd.DataFrame, label: str, key: str):
@@ -254,6 +314,7 @@ def render_channel_result(res: dict, key: str):
         st.markdown("**動画一覧(再生数順)**")
     render_video_table(df)
     render_pattern_analysis(df, res["label"], key)
+    render_comment_analysis(df, key)
 
 
 st.title(f"📊 {APP_TITLE}")
@@ -362,6 +423,7 @@ with tab_trend:
             st.bar_chart(by_channel)
         render_video_table(df)
         render_pattern_analysis(df, trend_res["label"], "trend")
+        render_comment_analysis(df, "trend")
 
     st.divider()
     st.subheader("急上昇動画(地域別)")
@@ -378,6 +440,7 @@ with tab_trend:
         render_download_section(popular_res["df"], popular_res["label"], "popular")
         render_video_table(popular_res["df"])
         render_pattern_analysis(popular_res["df"], popular_res["label"], "popular")
+        render_comment_analysis(popular_res["df"], "popular")
 
 # ----------------------------------------------------------------------
 # 競合チャンネル分析
@@ -433,6 +496,7 @@ with tab_competitor:
                 render_download_section(combined_df, combined_res["label"], "combined")
                 render_video_table(combined_df)
                 render_pattern_analysis(combined_df, combined_res["label"], "combined")
+                render_comment_analysis(combined_df, "combined")
 
     st.divider()
     st.markdown("**新しいチャンネルを分析する**")
