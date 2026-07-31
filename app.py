@@ -225,7 +225,7 @@ def render_pattern_analysis(df: pd.DataFrame, label: str, key: str):
         render_download_section(df, label, f"{key}_pattern")
 
 
-def render_comment_analysis(df: pd.DataFrame, key: str):
+def render_comment_analysis(df: pd.DataFrame, label: str, key: str):
     """視聴者コメントを取得し、どんな反応が多いかを分類して見せる。"""
     if df.empty:
         return
@@ -238,10 +238,13 @@ def render_comment_analysis(df: pd.DataFrame, key: str):
 
         if st.button("💬 コメントを分析する", key=f"{key}_comment_run"):
             targets = df.head(target_count)
-            comments: list[str] = []
+            comments: list[dict] = []
             progress = st.progress(0.0, text="コメントを取得しています...")
             for i, (_, row) in enumerate(targets.iterrows(), start=1):
-                comments.extend(client.get_video_comments(row["video_id"], max_results=50))
+                fetched = client.get_video_comments(row["video_id"], max_results=50)
+                for c in fetched:
+                    c["video_title"] = row["title"]
+                comments.extend(fetched)
                 progress.progress(i / len(targets), text=f"コメントを取得しています... {i}/{len(targets)}本")
             progress.empty()
             st.session_state[f"comments_{key}"] = comments
@@ -259,10 +262,14 @@ def render_comment_analysis(df: pd.DataFrame, key: str):
             st.info("コメントを取得できませんでした(コメント無効の可能性があります)。")
             return
 
-        sentiment = analysis.comment_sentiment(comments)
+        comments = report.normalize_comments(comments)
+        texts = [c.get("text", "") for c in comments]
+        sentiment = analysis.comment_sentiment(texts)
+
+        render_comment_download(comments, label, key)
 
         st.markdown("**読み取れること**")
-        for line in analysis.comment_insights(comments, sentiment):
+        for line in analysis.comment_insights(texts, sentiment):
             st.markdown(f"- {line}")
         st.caption("※ キーワードによる自動分類です。皮肉や文脈までは読み取れません。")
 
@@ -274,14 +281,47 @@ def render_comment_analysis(df: pd.DataFrame, key: str):
             ).set_index("反応")
             st.bar_chart(sentiment_df)
 
-        words = analysis.comment_word_frequency(comments)
+        words = analysis.comment_word_frequency(texts)
         if words:
             st.markdown("**コメントの頻出ワード**")
             st.bar_chart(pd.DataFrame(words, columns=["ワード", "回数"]).set_index("ワード"))
 
         st.markdown("**コメントの例**")
         for c in comments[:5]:
-            st.markdown(f"> {c[:150]}")
+            author = c.get("author", "")
+            prefix = f"**{author}**: " if author else ""
+            st.markdown(f"> {prefix}{c.get('text', '')[:150]}")
+
+
+def render_comment_download(comments: list[dict], label: str, key: str):
+    """取得したコメントをそのままファイルに保存できるようにする。"""
+    if not comments:
+        return
+    stamp = dt.datetime.now().strftime("%Y%m%d_%H%M")
+    safe_label = re.sub(r"[^\w\-]", "_", label)[:40]
+
+    with st.container(border=True):
+        st.markdown(f"### 💾 コメント{len(comments)}件をそのまま保存")
+        col_txt, col_csv = st.columns(2)
+        saved_txt = col_txt.download_button(
+            "📄 コメントを保存",
+            data=report.build_comments_text(comments, label).encode("utf-8"),
+            file_name=f"{safe_label}_コメント_{stamp}.txt",
+            mime="text/plain",
+            key=f"dl_cmt_txt_{key}",
+            use_container_width=True,
+            type="primary",
+        )
+        saved_csv = col_csv.download_button(
+            "📊 コメントを保存(CSV)",
+            data=("﻿" + report.build_comments_csv(comments)).encode("utf-8"),
+            file_name=f"{safe_label}_コメント_{stamp}.csv",
+            mime="text/csv",
+            key=f"dl_cmt_csv_{key}",
+            use_container_width=True,
+        )
+        if saved_txt or saved_csv:
+            keep_expander_open(f"{key}_comment")
 
 
 def render_download_section(df: pd.DataFrame, label: str, key: str):
@@ -350,7 +390,7 @@ def render_channel_result(res: dict, key: str):
         st.markdown("**動画一覧(再生数順)**")
     render_video_table(df)
     render_pattern_analysis(df, res["label"], key)
-    render_comment_analysis(df, key)
+    render_comment_analysis(df, res["label"], key)
 
 
 st.title(f"📊 {APP_TITLE}")
@@ -460,7 +500,7 @@ with tab_trend:
             st.bar_chart(by_channel)
         render_video_table(df)
         render_pattern_analysis(df, trend_res["label"], "trend")
-        render_comment_analysis(df, "trend")
+        render_comment_analysis(df, trend_res["label"], "trend")
 
     st.divider()
     st.subheader("急上昇動画(地域別)")
@@ -477,7 +517,7 @@ with tab_trend:
         render_download_section(popular_res["df"], popular_res["label"], "popular")
         render_video_table(popular_res["df"])
         render_pattern_analysis(popular_res["df"], popular_res["label"], "popular")
-        render_comment_analysis(popular_res["df"], "popular")
+        render_comment_analysis(popular_res["df"], popular_res["label"], "popular")
 
 # ----------------------------------------------------------------------
 # 競合チャンネル分析
@@ -533,7 +573,7 @@ with tab_competitor:
                 render_download_section(combined_df, combined_res["label"], "combined")
                 render_video_table(combined_df)
                 render_pattern_analysis(combined_df, combined_res["label"], "combined")
-                render_comment_analysis(combined_df, "combined")
+                render_comment_analysis(combined_df, combined_res["label"], "combined")
 
     st.divider()
     st.markdown("**新しいチャンネルを分析する**")

@@ -98,6 +98,74 @@ def build_text_report(df: pd.DataFrame, title: str) -> str:
     return "\n".join(lines)
 
 
+def normalize_comments(comments: list) -> list[dict]:
+    """文字列だけの古い保存形式も、辞書形式に揃えて扱えるようにする。"""
+    normalized = []
+    for c in comments or []:
+        if isinstance(c, dict):
+            normalized.append(c)
+        else:
+            normalized.append({"text": str(c)})
+    return normalized
+
+
+def build_comments_text(comments: list, label: str) -> str:
+    """取得したコメントを本文そのままで書き出す。"""
+    items = normalize_comments(comments)
+    now = dt.datetime.now().strftime("%Y/%m/%d %H:%M")
+    lines = [
+        f"# {label} のコメント",
+        f"作成日時: {now}",
+        f"件数: {len(items)}件",
+        "",
+    ]
+    if not items:
+        lines.append("(コメントがありません)")
+        return "\n".join(lines)
+
+    sentiment = analysis.comment_sentiment([c.get("text", "") for c in items])
+    insights = analysis.comment_insights([c.get("text", "") for c in items], sentiment)
+    if insights:
+        lines.append("## 反応の傾向")
+        lines.extend(f"- {line}" for line in insights)
+        lines.append("※ キーワードによる自動分類です。皮肉や文脈までは読み取れません。")
+        lines.append("")
+
+    lines.append("## コメント一覧")
+    for i, c in enumerate(items, start=1):
+        author = c.get("author", "")
+        likes = c.get("like_count")
+        header = f"{i}. {author}" if author else f"{i}."
+        if likes:
+            header += f"(👍 {likes})"
+        lines.append(header)
+        lines.append(f"   {c.get('text', '')}")
+        video_id = c.get("video_id")
+        if video_id:
+            lines.append(f"   https://www.youtube.com/watch?v={video_id}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def build_comments_csv(comments: list) -> str:
+    """コメントを表計算ソフトで開ける形式にする。"""
+    items = normalize_comments(comments)
+    if not items:
+        return ""
+    out = pd.DataFrame({
+        "コメント": [c.get("text", "") for c in items],
+        "投稿者": [c.get("author", "") for c in items],
+        "高評価数": [c.get("like_count", "") for c in items],
+        "投稿日時": [c.get("published_at", "") for c in items],
+        "動画URL": [
+            f"https://www.youtube.com/watch?v={c['video_id']}" if c.get("video_id") else ""
+            for c in items
+        ],
+    })
+    return out.to_csv(index=False)
+
+
 def build_csv(df: pd.DataFrame) -> str:
     """表計算ソフトで開ける形式に整えたCSVを返す。"""
     if df.empty:

@@ -164,12 +164,13 @@ class YouTubeClient:
     # ------------------------------------------------------------------
     # コメント取得
     # ------------------------------------------------------------------
-    def get_video_comments(self, video_id: str, max_results: int = 50) -> list[str]:
-        """動画のトップレベルコメント本文を取得する。
+    def get_video_comments(self, video_id: str, max_results: int = 50) -> list[dict]:
+        """動画のトップレベルコメントを取得する。
 
+        本文だけでなく投稿者・高評価数・投稿日時も返すため、そのまま書き出せる。
         コメント無効・限定公開などで取得できない動画は空リストを返す。
         """
-        comments: list[str] = []
+        comments: list[dict] = []
         page_token = None
         try:
             while len(comments) < max_results:
@@ -184,8 +185,15 @@ class YouTubeClient:
                 for item in resp.get("items", []):
                     snippet = item["snippet"]["topLevelComment"]["snippet"]
                     text = snippet.get("textDisplay", "").strip()
-                    if text:
-                        comments.append(text)
+                    if not text:
+                        continue
+                    comments.append({
+                        "text": text,
+                        "author": snippet.get("authorDisplayName", ""),
+                        "like_count": int(snippet.get("likeCount", 0)),
+                        "published_at": snippet.get("publishedAt", ""),
+                        "video_id": video_id,
+                    })
                 page_token = resp.get("nextPageToken")
                 if not page_token:
                     break
