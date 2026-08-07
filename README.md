@@ -26,6 +26,7 @@
 | 10 | [収益化導線](docs/10-monetization.md) | フェーズ別のマネタイズ設計 |
 | 11 | [制作フロー](docs/11-production-flow.md) | 1本を作る手順とチェックリスト |
 | 12 | [安全ガイドライン](docs/12-safety-guidelines.md) | 心理系コンテンツで守る線引き（**必読**） |
+| 13 | [拡散設計](docs/13-viral-design.md) | 煽らずに伸ばす4経路・冒頭2秒・タイトルの型 |
 
 ## 素材
 
