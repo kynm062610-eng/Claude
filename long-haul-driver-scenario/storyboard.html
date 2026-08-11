@@ -1,0 +1,528 @@
+<title>ネーム設計書 / 漫画風コマ割り</title>
+<style>
+  :root {
+    --ground:#EDEEEA; --surface:#F7F8F5; --surface-2:#E3E5DE;
+    --ink:#16181A; --ink-2:#4A5054; --ink-3:#767D82;
+    --rule:#C9CDC5; --rule-soft:#DDE0D9;
+    --accent:#B4630A; --accent-soft:#F0DCC1;
+    --warn:#9E3826; --warn-soft:#F2DAD4;
+    --cool:#2F5D74; --cool-soft:#D8E4EB;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:#131518; --surface:#1A1D21; --surface-2:#23272C;
+      --ink:#E7E8E4; --ink-2:#A9AFB4; --ink-3:#7C838A;
+      --rule:#2E333A; --rule-soft:#24282D;
+      --accent:#E8951F; --accent-soft:#3A2A11;
+      --warn:#D9705A; --warn-soft:#38211B;
+      --cool:#7FB0CA; --cool-soft:#1B2A33;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#131518; --surface:#1A1D21; --surface-2:#23272C;
+    --ink:#E7E8E4; --ink-2:#A9AFB4; --ink-3:#7C838A;
+    --rule:#2E333A; --rule-soft:#24282D;
+    --accent:#E8951F; --accent-soft:#3A2A11;
+    --warn:#D9705A; --warn-soft:#38211B;
+    --cool:#7FB0CA; --cool-soft:#1B2A33;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Yu Gothic","Noto Sans JP",Meiryo,sans-serif;
+    font-size:15px; line-height:1.8; margin:0; padding:0 20px 96px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+  .mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+  header{padding:56px 0 26px;border-bottom:2px solid var(--ink)}
+  .eyebrow{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  h1{font-size:clamp(26px,6vw,38px);line-height:1.25;letter-spacing:-.02em;font-weight:800;margin:0 0 12px;text-wrap:balance}
+  .standfirst{color:var(--ink-2);font-size:14.5px;margin:0;max-width:52ch}
+  .spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:26px}
+  .spec div{background:var(--surface);padding:13px 15px}
+  .spec dt{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);margin:0 0 3px}
+  .spec dd{margin:0;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .spec dd small{font-size:12px;font-weight:500;color:var(--ink-2)}
+
+  section{margin-top:58px}
+  h2{font-size:20px;font-weight:800;margin:0 0 6px;padding-bottom:10px;border-bottom:1px solid var(--ink);display:flex;align-items:baseline;gap:12px}
+  h2 .tag{font-family:ui-monospace,monospace;font-size:10.5px;font-weight:500;letter-spacing:.14em;color:var(--accent);flex:none}
+  h3{font-size:15.5px;font-weight:700;margin:30px 0 8px}
+  .lede{color:var(--ink-2);margin:16px 0 0}
+  p{margin:14px 0}
+  .hl{color:var(--accent);font-weight:700}
+
+  .tbl{overflow-x:auto;margin-top:18px;border:1px solid var(--rule)}
+  table{border-collapse:collapse;width:100%;min-width:440px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+  thead th{background:var(--surface-2);font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-2);font-weight:500;white-space:nowrap}
+  tbody tr{background:var(--surface)}
+  tbody tr:last-child td{border-bottom:none}
+
+  /* character cards */
+  .chars{display:flex;flex-direction:column;gap:2px;margin-top:18px}
+  .char{background:var(--surface);border-left:3px solid var(--cool);padding:13px 16px}
+  .char h4{margin:0 0 5px;font-size:14.5px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .char h4 span{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--ink-3);font-weight:500}
+  .char p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+  .char .fix{display:block;margin-top:7px;padding-top:7px;border-top:1px dashed var(--rule);font-size:12.5px;color:var(--ink)}
+  .char .fix b{color:var(--cool)}
+
+  /* scene list */
+  .scenes{display:flex;flex-direction:column;gap:2px;margin-top:18px}
+  .sc{background:var(--surface);border-left:3px solid var(--rule);display:grid;grid-template-columns:44px 1fr}
+  .sc.key{border-left-color:var(--accent)}
+  .sc.low{border-left-color:var(--warn)}
+  .sc-no{font-family:ui-monospace,monospace;font-size:11px;color:var(--ink-3);padding:12px 0 0 10px;font-variant-numeric:tabular-nums}
+  .sc-b{padding:11px 14px 12px 0}
+  .sc-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 10px;margin-bottom:4px}
+  .sc-t{font-weight:700;font-size:14px}
+  .sc-m{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sc-m b{color:var(--accent);font-weight:700}
+  .sc-bg{display:inline-block;font-size:11px;background:var(--cool-soft);color:var(--ink);padding:1px 7px;border-radius:2px;margin-bottom:5px}
+  .sc-b ul{margin:5px 0 0;padding-left:17px}
+  .sc-b li{font-size:13px;color:var(--ink-2);line-height:1.65;margin:3px 0}
+  .sc-b li b{color:var(--ink);font-weight:700}
+
+  .warn-box{background:var(--warn-soft);border-left:3px solid var(--warn);padding:4px 18px 14px;margin-top:20px}
+  .warn-box ul{margin:0;padding-left:18px}
+  .warn-box li{margin:10px 0;font-size:13.5px;line-height:1.7}
+  .warn-box li b{color:var(--warn)}
+
+  .callout{border:2px solid var(--ink);padding:17px 19px;margin-top:24px}
+  .callout p{margin:0;font-size:14.5px}
+  .callout .k{font-size:25px;font-weight:800;letter-spacing:-.02em;display:block;margin-bottom:4px}
+
+  .thumbs{display:flex;flex-direction:column;gap:2px;margin-top:16px}
+  .th{background:var(--surface);padding:13px 16px;border-left:3px solid var(--accent)}
+  .th h4{margin:0 0 4px;font-size:14px;font-weight:700}
+  .th p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+  .th .cap{display:inline-block;margin-top:8px;background:var(--ink);color:var(--ground);font-weight:800;padding:3px 10px;font-size:13px;letter-spacing:.02em}
+
+  .rules{margin:16px 0 0;padding:0;list-style:none}
+  .rules li{padding:10px 0 10px 24px;border-bottom:1px solid var(--rule-soft);position:relative;font-size:14px}
+  .rules li::before{content:"";position:absolute;left:3px;top:19px;width:9px;height:2px;background:var(--accent)}
+  .rules li:last-child{border-bottom:none}
+
+  footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-3);line-height:1.8}
+  @media(max-width:480px){body{font-size:14.5px;padding:0 15px 72px}.spec dd{font-size:18px}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Storyboard Spec / Manga Panels</p>
+  <h1>ネーム設計書<br>漫画風コマ割り</h1>
+  <p class="standfirst">決定稿7,268字を42シーンに割り、コマ数・背景・キー構図まで落とした制作用の設計書。ナレーション方式が未定でもそのまま使えます。</p>
+  <dl class="spec">
+    <div><dt>総尺</dt><dd>23.3<small> 分</small></dd></div>
+    <div><dt>シーン</dt><dd>42</dd></div>
+    <div><dt>コマ数</dt><dd>245</dd></div>
+    <div><dt>作画枚数</dt><dd>約90<small> 枚</small></dd></div>
+    <div><dt>背景セット</dt><dd>12</dd></div>
+  </dl>
+</header>
+
+<section>
+  <h2><span class="tag">01</span>全体設計</h2>
+  <p class="lede">下のシーン割りの合計は<strong>245コマ／平均5.8秒</strong>。数だけ見ると多く感じますが、漫画風は<span class="hl">1枚の絵に3コマ前後を収められる</span>ので、実際に描き起こす枚数は<strong>約90枚</strong>です。ここを勘違いすると作業量の見積もりが3倍ずれます。</p>
+
+  <div class="callout">
+    <p><span class="k">245コマ ÷ 3 ≒ 90枚</span>1枚＝漫画1ページと考えて、その中を2〜4コマに割る。<strong>ページ単位で描き、動画側では「1コマずつ順に表示していく」形で見せる</strong>のが、この形式の標準的な作り方です。会話が続く場面ほど1枚に詰められます。</p>
+  </div>
+
+  <h3>コマの持ち時間</h3>
+  <p>2種類に分けるのがコツです。<strong>セリフのあるコマは1発言ごとに切り替え（3〜5秒）、モノローグと情景はゆっくり寄る・引く（8〜12秒）。</strong>下の各シーンのコマ数はこの前提で算出しています。</p>
+
+  <h3>制作ルール</h3>
+  <ul class="rules">
+    <li><strong>画面比率は16:9横。</strong>コマは横長基調で。縦長コマを使うのは「立っている人物の全身」「舞台の娘」だけに限定すると統一感が出ます。</li>
+    <li><strong>荷待ちパートは同じ構図を意図的に繰り返す。</strong>受付のカット（S12・S14・S17）は、ほぼ同じアングルで時計だけ変える。<span class="hl">同じ絵が3回出ることそのものが「進まない時間」の演出</span>になります。</li>
+    <li><strong>時刻テロップは全シーンに入れる。</strong>この台本は時刻が主役なので、画面隅に常時「10:40」のような小さい時計を置くと強い。</li>
+    <li><strong>LINEの画面はスマホ実物の画角で。</strong>吹き出しではなくスマホUIそのものを描くと、視聴者が自分の画面と重ねて読めます。全部で6回出ます。</li>
+    <li><strong>父の顔は前半で「見せすぎない」。</strong>後ろ姿・ミラー越し・手元を多用し、発表会で初めて正面から表情を出すと落差が効きます。</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="tag">02</span>キャラクター設定</h2>
+  <p class="lede">漫画風で一番崩れるのが人物の同一性です。<strong>下の「固定」欄を毎回そのままプロンプトに貼る／作画指示に付ける</strong>ことで、全カットで同じ人物に見えます。台本に明記のない項目は設定提案なので、変えたい場合はここだけ書き換えてください。</p>
+
+  <div class="chars">
+    <div class="char">
+      <h4>父（主人公）<span>40代前半 / 一人称「俺」/ 関西弁</span></h4>
+      <p>長距離トラックドライバー歴は長い。疲れが顔に出るが、娘の前では笑う。台本に年齢の記載がないため、長女小5・次女小3から逆算した設定です。</p>
+      <span class="fix"><b>固定：</b>日本人男性、40代前半、短い黒髪に白髪混じり、無精髭、日焼けした肌、目の下にうっすらクマ、がっしりした体格。紺色の長袖作業着＋同色カーゴパンツ、安全靴、腰に白いタオル。<br><b>私服（S32以降）：</b>黒のポロシャツ、ベージュのチノパン。</span>
+    </div>
+    <div class="char">
+      <h4>妻<span>30代後半 / 標準語寄りの関西弁</span></h4>
+      <p>急かさない。台本で最も効いている人物なので、<strong>表情は常に「静か」</strong>に。心配顔ではなく、分かっている顔。</p>
+      <span class="fix"><b>固定：</b>日本人女性、30代後半、黒髪セミロングを後ろで一つに束ねる、細身、柔らかい目元。ベージュのカーディガン＋白インナー＋濃紺のパンツ。</span>
+    </div>
+    <div class="char">
+      <h4>長女<span>小学5年生・11歳</span></h4>
+      <p>約束を確認するのはいつもこの子。しっかり者だが、舞台では緊張する。<strong>笑うのは3回だけ</strong>（電話、間に合った時、車内）。使いどころを絞ると効きます。</p>
+      <span class="fix"><b>固定：</b>日本人の女の子、11歳、肩にかかる長さの黒髪、落ち着いた目、やや細身。私服は水色のパーカー。<br><b>ダンス衣装：</b>チームの黒Tシャツ＋白のハーフパンツ＋黒キャップ、髪はポニーテール。</span>
+    </div>
+    <div class="char">
+      <h4>次女<span>小学3年生・9歳</span></h4>
+      <p>ラーメンの担当。感情がそのまま顔に出る。<strong>拗ねる→一気に明るくなる</strong>の落差が見せ場（S40）。</p>
+      <span class="fix"><b>固定：</b>日本人の女の子、9歳、黒髪のショートボブ、丸い目、笑うと歯が見える。私服は黄色のTシャツ。<br><b>ダンス衣装：</b>長女と同一（キャップは後ろ被り）。</span>
+    </div>
+    <div class="char">
+      <h4>山本<span>50代 / 積み込み先の担当者</span></h4>
+      <p><strong>絶対に悪人に描かない。</strong>常に申し訳なさそうな顔。彼を悪役に見せると台本の良さが消えます。</p>
+      <span class="fix"><b>固定：</b>日本人男性、50代、白髪混じりの短髪、銀縁メガネ、細身。水色の作業着シャツ＋黒スラックス、首から社員証。</span>
+    </div>
+    <div class="char">
+      <h4>トラック<span>大型 / 10t</span></h4>
+      <p>帰り荷がパレット物なので<strong>ウイング車か箱車</strong>。全カットで同じ車両に見えるよう、色とグリル形状を固定します。</p>
+      <span class="fix"><b>固定：</b>白いキャブの日本の大型トラック、白い箱型荷台（無地・ロゴなし）、キャブ上部にマーカーランプ、運転席後ろに仮眠スペース。</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">03</span>背景セット（12種）</h2>
+  <p class="lede">42シーンありますが、背景は12種の使い回しで足ります。<strong>先にこの12枚を作り込んでから人物を乗せる</strong>のが最短ルートです。</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>ID</th><th>背景</th><th>使用シーン</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">BG-A</td><td>サービスエリア駐車場（夜・21時）</td><td class="mono">S02–S05</td></tr>
+        <tr><td class="mono">BG-B</td><td>トラック仮眠スペース（車内・夜）</td><td class="mono">S03, S05</td></tr>
+        <tr><td class="mono">BG-C</td><td>サービスエリア（早朝・まだ暗い）</td><td class="mono">S06–S07</td></tr>
+        <tr><td class="mono">BG-D</td><td>トラック運転席（内観）※昼夜で光を変える</td><td class="mono">全編で最多</td></tr>
+        <tr><td class="mono">BG-E</td><td>高速道路（早朝／昼／夕方／渋滞の4パターン）</td><td class="mono">S08, S24–S30</td></tr>
+        <tr><td class="mono">BG-F</td><td>おろし先のプラットフォーム（早朝）</td><td class="mono">S09</td></tr>
+        <tr><td class="mono">BG-G</td><td>積み込み先の受付・事務所</td><td class="mono">S10, S12, S14, S17</td></tr>
+        <tr><td class="mono">BG-H</td><td>積み込み先の待機スペース（トラック外観）</td><td class="mono">S11, S13, S15, S16</td></tr>
+        <tr><td class="mono">BG-I</td><td>倉庫の荷積み場（フォークリフト）</td><td class="mono">S19–S20</td></tr>
+        <tr><td class="mono">BG-J</td><td>自宅の玄関・リビング</td><td class="mono">S31, S41</td></tr>
+        <tr><td class="mono">BG-K</td><td>妻の乗用車の車内（後席あり）</td><td class="mono">S32, S38–S40</td></tr>
+        <tr><td class="mono">BG-L</td><td>発表会ホール（客席側／舞台側の2枚）</td><td class="mono">S33–S37</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">04</span>シーン割り（42）</h2>
+  <p class="lede">尺は312字/分で換算。<span class="hl">オレンジ＝見せ場</span>／<span style="color:var(--warn);font-weight:700">赤＝感情の底</span>。</p>
+
+  <div class="scenes">
+
+    <div class="sc"><div class="sc-no">S01</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">タイトルコール</span><span class="sc-m">5s / <b>1コマ</b></span></div>
+      <span class="sc-bg">BG-E 夕暮れの高速</span>
+      <ul><li>走るトラックの後ろ姿にタイトル。<b>音楽のみ、ナレーションなし</b>で3秒持たせる</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S02</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">冒頭ナレーション</span><span class="sc-m">14s / <b>3コマ</b></span></div>
+      <span class="sc-bg">BG-E / BG-J</span>
+      <ul><li>①走るトラック（引き）②<b>暗い玄関で靴を脱ぐ父の後ろ姿</b>③寝ている娘たちの部屋のドア</li><li>ここで父の顔は出さない</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S03</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">SA到着・21時</span><span class="sc-m">48s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-A / BG-B</span>
+      <ul><li>①SAに停まる大型トラック（夜・引き）②運転席の時計「21:0x」アップ③運行予定表を見る手元④「これやったら大丈夫やな」＝父の顔の初出（横顔）⑤シャワー室へ歩く後ろ姿⑥トラックに戻る</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S04</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">娘からの電話</span><span class="sc-m">67s / <b>10コマ</b></span></div>
+      <span class="sc-bg">BG-B</span>
+      <ul><li><b>この動画の「約束」を立てる最重要シーン。</b>セリフごとにコマを切る</li><li>電話中の娘たちは<b>子ども部屋のカットを差し込む</b>（声だけでなく姿を見せる）。長女がスマホ、次女が横から顔を出す構図</li><li>「任せとけ」で父の笑顔を1コマ。ここが前半唯一の笑顔</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S05</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">就寝・引き</span><span class="sc-m">23s / <b>4コマ</b></span></div>
+      <span class="sc-bg">BG-B</span>
+      <ul><li>①カーテンを閉める手②ハンドルに足を上げる③暗転気味の車内④<b>「あそこまでギリギリにするなんて」で外観の引きに戻る</b></li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S06</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">4時半・起床</span><span class="sc-m">32s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-B / BG-C</span>
+      <ul><li>①暗闇に光るスマホ②手を伸ばして止める③グループラインの画面（既読なし）④洗面所で顔を洗う⑤水滴のついた顔⑥自販機の光</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S07</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">缶コーヒーと予定確認</span><span class="sc-m">40s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-C / BG-D</span>
+      <ul><li>缶を開ける手のアップ→一口飲む横顔→今日の予定を頭に浮かべるカット（<b>4分割の小コマで「荷下ろし／積み込み／会社／発表会」を並べる</b>）→エンジン始動</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S08</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">早朝の走行</span><span class="sc-m">28s / <b>4コマ</b></span></div>
+      <span class="sc-bg">BG-E 早朝</span>
+      <ul><li>白み始めた空、空いた道路。<b>ここは大ゴマ2枚をゆっくりパン</b>で持たせる</li><li>昨夜の「絶対来てな」を回想吹き出しで小さく重ねる</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S09</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">5時半・荷下ろし</span><span class="sc-m">40s / <b>7コマ</b></span></div>
+      <span class="sc-bg">BG-F</span>
+      <ul><li>バース付け／伝票／作業終了／時計「7時前」。<b>ここは全部順調に見せる</b>ので、テンポよく短いコマを連続</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S10</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">8時・積み込み先／山本さん初出</span><span class="sc-m">47s / <b>8コマ</b></span></div>
+      <span class="sc-bg">BG-G</span>
+      <ul><li>山本さんの<b>「少し困ったような顔」を必ず1コマ大きく</b>。ここで視聴者に「何か起きる」と伝える</li><li>父はまだ余裕の表情。この落差が仕込み</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S11</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">8時半・家族LINE</span><span class="sc-m">42s / <b>7コマ</b></span></div>
+      <span class="sc-bg">BG-D</span>
+      <ul><li><b>スマホ画面をそのまま描く。</b>妻→長女→次女の順に吹き出しが増えていく様子を2〜3コマに分けて見せる</li><li>「ラーメン食べよな！」は<b>あとで効く伏線なので大きめに</b></li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S12</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">9時半・受付①</span><span class="sc-m">20s / <b>3コマ</b></span></div>
+      <span class="sc-bg">BG-G</span>
+      <ul><li><b>基準となる構図をここで決める。</b>受付カウンター越しの固定アングル。S14・S17で同じ絵を使う</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S13</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">待機</span><span class="sc-m">8s / <b>2コマ</b></span></div>
+      <span class="sc-bg">BG-H</span>
+      <ul><li>止まったままのトラック（引き）＋時計</li></ul>
+    </div></div>
+
+    <div class="sc low"><div class="sc-no">S14</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">10時半・バーストの報せ</span><span class="sc-m">58s / <b>9コマ</b></span></div>
+      <span class="sc-bg">BG-G</span>
+      <ul><li>S12と<b>同一アングル</b>で開始。時計だけ違う</li><li>山本さんが電話をかける後ろ姿／離れて待つ父／戻ってくる山本さん</li><li>「バーストして」の説明は<b>パンクしたトラックのイメージカットを1枚</b>差し込むと分かりやすい</li><li>ラストに「時計を見る回数が増えた」＝<b>腕時計のアップ</b>で締める</li></ul>
+    </div></div>
+
+    <div class="sc low"><div class="sc-no">S15</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">11時・頭の中で計算</span><span class="sc-m">27s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-D</span>
+      <ul><li><b>計算している思考を画面に出す。</b>時刻の数字が宙に浮かぶ／指を折る手元／眉間のアップ</li><li>「……まだいける」で<b>沈黙のコマ</b>を1枚</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S16</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">11時半・長女のLINE</span><span class="sc-m">31s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-D</span>
+      <ul><li>『ほんまに来れる？』の画面／<b>返信を打つ前に一瞬止まる指</b>／送信後の父の表情（笑っていない）</li><li>この「打つ前の間」が本当は不安であることを伝えます。台詞では説明しない</li></ul>
+    </div></div>
+
+    <div class="sc low"><div class="sc-no">S17</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">11時50分・まだ来ない</span><span class="sc-m">31s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-G</span>
+      <ul><li>S12・S14と<b>三度目の同一アングル</b>。ここで視聴者は「またか」と感じる。狙い通り</li><li>「もう午前中が終わる」で壁の時計を大ゴマ</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S18</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">12時・妻とのLINE</span><span class="sc-m">33s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-D</span>
+      <ul><li><b>台本で最も効く場面。</b>『うんでも無理せんといてね』の吹き出しを<b>画面いっぱいに1コマ使う</b></li><li>直後に「急いで帰ってきて」とは言わない／「絶対間に合わせて」とも言わない＝<b>あえて空白の多いコマ</b>で受ける</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S19</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">12時15分・あと40分</span><span class="sc-m">28s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-G</span>
+      <ul><li>受話器を置く山本さん／「30分……いや、40分」の言い直しは<b>2コマに分ける</b></li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S20</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">12時40分・積み込み</span><span class="sc-m">70s / <b>11コマ</b></span></div>
+      <span class="sc-bg">BG-I</span>
+      <ul><li><b>ここで初めてテンポが上がる。</b>フォークリフトの動き、パレットが一つ／二つ／三つを<b>3コマ連続で同じ構図</b></li><li>扉を閉める音を大きめの効果線で／時計「13:10」</li><li>「まだ……いける」でナビ画面のアップ</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S21</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">13時15分・帰路スタート</span><span class="sc-m">21s / <b>4コマ</b></span></div>
+      <span class="sc-bg">BG-D / BG-E</span>
+      <ul><li>次女の『ラーメン！』の一言だけのLINEで、<b>張り詰めた空気を一瞬ゆるめる</b>。父の口元だけ笑うコマ</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S22</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">15時／16時・順調</span><span class="sc-m">19s / <b>3コマ</b></span></div>
+      <span class="sc-bg">BG-E 昼</span>
+      <ul><li>流れている道路。<b>ここは意図的に平坦に</b>。次の渋滞を効かせるための凪</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S23</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">16時半・SA休憩</span><span class="sc-m">38s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-C 夕</span>
+      <ul><li>急いでいるのに休憩を取る＝<b>プロの判断</b>。ここは丁寧に。腕時計を見てから、あえて座るカット</li></ul>
+    </div></div>
+
+    <div class="sc low"><div class="sc-no">S24</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">17時半〜18時・予定が崩れる</span><span class="sc-m">22s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-E 夕</span>
+      <ul><li><b>ナビの到着予定が19:30→19:40→19:50と変わる3コマを、同じ画角で連続。</b>数字だけが動く演出</li><li>ハンドルを握る手に力が入るアップ</li></ul>
+    </div></div>
+
+    <div class="sc low"><div class="sc-no">S25</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">18時半・渋滞／妻への電話</span><span class="sc-m">47s / <b>8コマ</b></span></div>
+      <span class="sc-bg">BG-E 渋滞</span>
+      <ul><li><b>感情の底。</b>テールランプの赤が連なる大ゴマを1枚（この動画で一番暗い絵）</li><li>「まだ分からんけど……」で言葉が途切れる＝<b>吹き出しが途中で切れている表現</b></li><li>妻の『大丈夫。気をつけて帰ってきて』は<b>妻側のカット</b>（自宅で電話を持つ姿）に切り替えると効く</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S26</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">18時50分〜19時15分・流れ出す</span><span class="sc-m">30s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-E 夜</span>
+      <ul><li>ナビの数字が今度は<b>縮まっていく</b>3コマ。S24と対になる演出</li><li>「まだいける」で息を吐く横顔</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S27</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">19時45分・帰庫</span><span class="sc-m">18s / <b>4コマ</b></span></div>
+      <span class="sc-bg">BG-H 夜</span>
+      <ul><li>エンジンを切る手／静かになった車内／今日一日を並べる<b>4分割の小コマ</b>（荷下ろし・移動・荷待ち・積み込み）</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S28</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">19時55分・帰宅</span><span class="sc-m">48s / <b>9コマ</b></span></div>
+      <span class="sc-bg">BG-J</span>
+      <ul><li>ドアが開く／走ってくる長女／次女の「遅い！」／<b>ここで初めて父の全身の正面カット</b></li><li>妻は何も言わずに顔を見るだけ＝<b>セリフなしのコマを1枚必ず入れる</b></li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S29</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">20時10分・車で会場へ</span><span class="sc-m">26s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-K 夜</span>
+      <ul><li>後席でしゃべり続ける次女／助手席の父／運転する妻の横顔</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S30</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">20時45分・会場着</span><span class="sc-m">29s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-L 客席</span>
+      <ul><li>次女が振り返って「絶対見てな！」＝<b>舞台袖へ向かう娘の後ろ姿越しに父</b></li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S31</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">客席の空気</span><span class="sc-m">17s / <b>3コマ</b></span></div>
+      <span class="sc-bg">BG-L 客席</span>
+      <ul><li>スマホを構える他の父親たち（引き）／同じ顔をしている観客／その中の父</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S32</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">暗転・登場</span><span class="sc-m">15s / <b>3コマ</b></span></div>
+      <span class="sc-bg">BG-L</span>
+      <ul><li>①照明が落ちる（ほぼ黒コマ）②スポットが当たる舞台③<b>並ぶ2人の縦長大ゴマ</b>——ここが縦長コマの見せどころ</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S33</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">長女の緊張</span><span class="sc-m">17s / <b>4コマ</b></span></div>
+      <span class="sc-bg">BG-L 舞台</span>
+      <ul><li>硬い指先のアップ／こわばった表情／それを見ている父／「大丈夫や」（声に出さない＝<b>点線の吹き出し</b>）</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S34</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">ほどける</span><span class="sc-m">17s / <b>4コマ</b></span></div>
+      <span class="sc-bg">BG-L 舞台</span>
+      <ul><li>曲が変わる／肩の力が抜けて腕が大きく伸びる（<b>動きの大ゴマ</b>）／「何回も、何回も。俺が家にいない間に」で<b>誰もいない部屋で練習する長女の回想を1コマ</b></li><li>この回想カットが、この動画で一番泣かせる場所です</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S35</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">次女</span><span class="sc-m">13s / <b>3コマ</b></span></div>
+      <span class="sc-bg">BG-L 舞台</span>
+      <ul><li>振りがずれても笑っている／それでいい、と見ている父の表情</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S36</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">目が合う</span><span class="sc-m">29s / <b>7コマ</b></span></div>
+      <span class="sc-bg">BG-L</span>
+      <ul><li><b>この動画の頂点。ここだけコマを細かく、間をたっぷり。</b></li><li>①次女が客席を見る②父を見つける③一瞬の笑顔（アップ）④父も笑う⑤長女が探す（右からゆっくり＝<b>視線移動を2コマに分ける</b>）⑥目が合う——<b>父と長女を切り返しで</b>⑦すぐ前を向いて踊りに戻る</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S37</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">忘れていた／拍手</span><span class="sc-m">35s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-L</span>
+      <ul><li>今日一日のカットを<b>フラッシュバックで小さく4枚</b>（荷待ち・時計・渋滞・腰）→それが<b>白く消えていく</b></li><li>踊る2人の大ゴマ／曲が終わり頭を下げる／手を叩く父の手のアップ／隣で叩く妻（無言）</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S38</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">21時半・終演</span><span class="sc-m">30s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-L 客席</span>
+      <ul><li>駆け寄る次女／「見てた！？」／「めっちゃ上手かった」／長女の「間に合ってよかったな」</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S39</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">ラーメンの約束</span><span class="sc-m">31s / <b>6コマ</b></span></div>
+      <span class="sc-bg">BG-L 外</span>
+      <ul><li>会場の外／「今日はラーメンやで！」／<b>「正直、体はもう限界だった」で父の顔から笑みが消える1コマ</b>を挟む</li></ul>
+    </div></div>
+
+    <div class="sc"><div class="sc-no">S40</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">車内・目を閉じる</span><span class="sc-m">24s / <b>5コマ</b></span></div>
+      <span class="sc-bg">BG-K 夜</span>
+      <ul><li>「寝てへんよ」と答える／目を閉じる／<b>「ほんの少しだけ」でまぶたが下がるアップ</b></li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S41</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">妻の視点（回想）</span><span class="sc-m">67s / <b>11コマ</b></span></div>
+      <span class="sc-bg">BG-K 夜</span>
+      <ul><li><b>ここだけ視点が父から離れます。演出で明示してください。</b>——推奨：画面の色調をわずかに変える（少し青みを足す）か、コマの枠線を細くする</li><li>眠る父／小声で聞く長女／バックミラー越しの妻と次女／拗ねる次女／「明日、行けばいいよ」／一気に明るくなる次女／「切り替え早っ」で3人が笑う／<b>最後に眠る父を見て静かになる2人</b>——ここは無音で</li></ul>
+    </div></div>
+
+    <div class="sc key"><div class="sc-no">S42</div><div class="sc-b">
+      <div class="sc-h"><span class="sc-t">帰宅・明日行こか／締め</span><span class="sc-m">144s / <b>18コマ</b></span></div>
+      <span class="sc-bg">BG-K → BG-J</span>
+      <ul><li>起こされる／「……俺、寝てた？」／拗ねた次女との会話は<b>セリフごとにコマを切る</b></li><li>「じゃあ、明日行こか」＝<b>この動画の実質のオチ。ここで一番大きなコマを使う</b></li><li>締めのナレーションは<b>絵を止めて、一枚絵をゆっくりズームアウト</b>。家族4人のカット→窓の外→トラック→そして最後に走り出すトラックでS01と繋げる</li></ul>
+    </div></div>
+
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">05</span>作画で外すと台無しになる点</h2>
+  <div class="warn-box">
+    <ul>
+      <li><b>山本さんを悪人顔にしない。</b>この台本の品格は「誰も悪くないのにしんどい」という一点にあります。困り顔・申し訳なさそうな姿勢で統一を。</li>
+      <li><b>妻を心配顔にしない。</b>眉を下げた表情にすると「重い妻」になります。正解は<b>静かで、分かっている顔</b>。無表情に近くていい。</li>
+      <li><b>父を泣かせない。</b>台本のどこにも涙はありません。目が合う場面も「ほんの少しだけ笑った」だけ。涙を足すと一気に安っぽくなります。</li>
+      <li><b>渋滞シーンで怒らせない。</b>ハンドルを叩く、舌打ちする等はNG。<b>手に力が入るだけ</b>に留めるのが、この主人公の描き方です。</li>
+      <li><b>S41で父を起こさない。</b>寝ている父の顔は、あくまで穏やかに。娘たちが我慢する場面なので、父は無防備でいいんです。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">06</span>タイトル・サムネ案</h2>
+
+  <h3>タイトル案</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>案</th><th>タイプ</th></tr></thead>
+      <tbody>
+        <tr><td><strong>「パパ、絶対来てな」荷待ち5時間、娘との約束</strong></td><td>セリフ先出し型。最も強い</td></tr>
+        <tr><td><strong>荷待ち5時間。長距離ドライバーの父が娘の発表会に間に合うまで</strong></td><td>状況説明型。検索に強い</td></tr>
+        <tr><td><strong>【実話風】娘の発表会まであと3時間。トラックは動かなかった</strong></td><td>緊張提示型</td></tr>
+        <tr><td><strong>この家族の笑顔のために、俺は今日もハンドルを握る</strong></td><td>台本冒頭そのまま。情緒型だが引きは弱め</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>おすすめは1番目。</strong>「荷待ち」という業界語を入れることで、同業者が確実に反応します。このジャンルは現役ドライバーの視聴と共感コメントが伸びの起点になるので、専門語を隠さないほうが有利です。</p>
+
+  <h3>サムネ案</h3>
+  <div class="thumbs">
+    <div class="th">
+      <h4>A：左右分割（推奨）</h4>
+      <p>左に、運転席で腕時計を見る父（暗め・渋滞のテールランプ）。右に、舞台で踊る娘（明るいスポットライト）。中央に縦の稲妻状の分割線。<strong>明暗の対比だけで内容が伝わります。</strong></p>
+      <span class="cap">間に合え</span>
+    </div>
+    <div class="th">
+      <h4>B：時計アップ</h4>
+      <p>大型トラックの運転席の時計を大写し。奥に渋滞。父の顔は半分だけ入れる。文字は時計の脇に赤で。</p>
+      <span class="cap">発表会まであと2時間</span>
+    </div>
+    <div class="th">
+      <h4>C：客席の後ろ姿</h4>
+      <p>暗い客席で1人だけ立ち上がって拍手している父の後ろ姿。舞台の娘2人はピントを少しぼかす。<strong>ラストシーンのネタバレになるが、感動系ではむしろ強い。</strong></p>
+      <span class="cap">間に合った</span>
+    </div>
+  </div>
+  <p>サムネ文字は<strong>13字以内、2行まで</strong>。スマホで見たときに読めるサイズを優先してください。上の案はすべて5〜10字に収めてあります。</p>
+</section>
+
+<footer>
+  尺は決定稿7,268字を312字/分で換算。コマ数は「会話4秒・情景10秒」を前提とした推奨値です。<br>
+  ※ 背景12種を先に作り込んでから人物を乗せると、作業量が体感で半分になります。
+</footer>
+
+</div>
