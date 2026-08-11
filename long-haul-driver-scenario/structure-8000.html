@@ -1,0 +1,672 @@
+<title>長距離ドライバー 8,000字 構成書</title>
+<style>
+  :root {
+    --ground:      #EDEEEA;
+    --surface:     #F7F8F5;
+    --surface-2:   #E3E5DE;
+    --ink:         #16181A;
+    --ink-2:       #4A5054;
+    --ink-3:       #767D82;
+    --rule:        #C9CDC5;
+    --rule-soft:   #DDE0D9;
+    --accent:      #B4630A;
+    --accent-soft: #F0DCC1;
+    --warn:        #9E3826;
+    --warn-soft:   #F2DAD4;
+    --good:        #3F6B4A;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #131518;
+      --surface:     #1A1D21;
+      --surface-2:   #23272C;
+      --ink:         #E7E8E4;
+      --ink-2:       #A9AFB4;
+      --ink-3:       #7C838A;
+      --rule:        #2E333A;
+      --rule-soft:   #24282D;
+      --accent:      #E8951F;
+      --accent-soft: #3A2A11;
+      --warn:        #D9705A;
+      --warn-soft:   #38211B;
+      --good:        #7BAE87;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:      #131518;
+    --surface:     #1A1D21;
+    --surface-2:   #23272C;
+    --ink:         #E7E8E4;
+    --ink-2:       #A9AFB4;
+    --ink-3:       #7C838A;
+    --rule:        #2E333A;
+    --rule-soft:   #24282D;
+    --accent:      #E8951F;
+    --accent-soft: #3A2A11;
+    --warn:        #D9705A;
+    --warn-soft:   #38211B;
+    --good:        #7BAE87;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic Medium", "Yu Gothic", "Noto Sans JP", Meiryo, sans-serif;
+    font-size: 15px;
+    line-height: 1.85;
+    margin: 0;
+    padding: 0 20px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 660px; margin: 0 auto; }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- masthead ---------- */
+  header {
+    padding: 56px 0 28px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-size: clamp(27px, 6.4vw, 40px);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    color: var(--ink-2);
+    font-size: 14.5px;
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* ---------- spec strip ---------- */
+  .spec {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 28px 0 0;
+  }
+  .spec div { background: var(--surface); padding: 14px 16px; }
+  .spec dt {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+    margin: 0 0 4px;
+  }
+  .spec dd {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .spec dd small { font-size: 12px; font-weight: 500; color: var(--ink-2); letter-spacing: 0; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 60px; }
+  h2 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  h2 .tag {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    flex: none;
+  }
+  h3 {
+    font-size: 15.5px;
+    font-weight: 700;
+    margin: 32px 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .lede { color: var(--ink-2); margin: 16px 0 0; }
+  p { margin: 14px 0; }
+  strong { font-weight: 700; }
+  .hl { color: var(--accent); font-weight: 700; }
+
+  /* ---------- breakdown bars ---------- */
+  .bars { margin-top: 22px; display: flex; flex-direction: column; gap: 0; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 1fr 46px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .bar-label { font-size: 12.5px; line-height: 1.4; }
+  .bar-label .t {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    color: var(--ink-3);
+    margin-right: 8px;
+  }
+  .bar-track { height: 5px; background: var(--surface-2); margin-top: 5px; }
+  .bar-fill { height: 5px; background: var(--accent); display: block; }
+  .bar-row.peak .bar-fill { background: var(--accent); }
+  .bar-row.peak .bar-label { font-weight: 700; }
+  .bar-num {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--ink-2);
+  }
+
+  /* ---------- findings ---------- */
+  .finds { margin: 24px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .finds > li {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 14px 16px;
+  }
+  .finds h4 { margin: 0 0 4px; font-size: 14.5px; font-weight: 700; }
+  .finds p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.75; }
+  .finds .ex {
+    display: block;
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: var(--ink);
+    border-top: 1px dashed var(--rule);
+    padding-top: 8px;
+  }
+
+  /* ---------- curve ---------- */
+  figure { margin: 24px 0 0; }
+  .curve-box { background: var(--surface); border: 1px solid var(--rule); padding: 14px 8px 6px; overflow-x: auto; }
+  svg { display: block; width: 100%; min-width: 460px; height: auto; }
+  figcaption { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; line-height: 1.7; }
+
+  /* ---------- beat sheet ---------- */
+  .beats { margin: 24px 0 0; display: flex; flex-direction: column; gap: 2px; }
+  .beat {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    background: var(--surface);
+    border-left: 3px solid var(--rule);
+  }
+  .beat.up   { border-left-color: var(--accent); }
+  .beat.down { border-left-color: var(--warn); }
+  .beat-no {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    padding: 13px 0 0 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  .beat-body { padding: 12px 14px 13px 0; }
+  .beat-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 10px;
+    margin-bottom: 3px;
+  }
+  .beat-title { font-weight: 700; font-size: 14.5px; }
+  .beat-meta {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .beat-meta b { color: var(--accent); font-weight: 700; }
+  .beat-body p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+  .beat-add {
+    display: inline-block;
+    margin-top: 7px;
+    font-size: 11.5px;
+    background: var(--accent-soft);
+    color: var(--ink);
+    padding: 2px 8px;
+    border-radius: 2px;
+    line-height: 1.6;
+  }
+  .part-rule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 0 8px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+  }
+  .part-rule::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+  /* ---------- table ---------- */
+  .tbl-scroll { overflow-x: auto; margin-top: 20px; border: 1px solid var(--rule); }
+  table { border-collapse: collapse; width: 100%; min-width: 420px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  thead th {
+    background: var(--surface-2);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--ink-2);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  tbody tr { background: var(--surface); }
+  tbody tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--ink-2); }
+
+  /* ---------- rules list ---------- */
+  .rules { margin: 20px 0 0; padding: 0; list-style: none; }
+  .rules li {
+    padding: 11px 0 11px 26px;
+    border-bottom: 1px solid var(--rule-soft);
+    position: relative;
+    font-size: 14px;
+  }
+  .rules li::before {
+    content: "";
+    position: absolute;
+    left: 4px; top: 20px;
+    width: 9px; height: 2px;
+    background: var(--accent);
+  }
+  .rules li:last-child { border-bottom: none; }
+  .rules q { font-style: normal; color: var(--ink); background: var(--accent-soft); padding: 1px 5px; }
+
+  /* ---------- warn box ---------- */
+  .warn-box { background: var(--warn-soft); border-left: 3px solid var(--warn); padding: 4px 18px 14px; margin-top: 22px; }
+  .warn-box ul { margin: 0; padding-left: 18px; }
+  .warn-box li { margin: 11px 0; font-size: 13.5px; line-height: 1.7; }
+  .warn-box li b { color: var(--warn); }
+
+  /* ---------- callout ---------- */
+  .callout {
+    border: 2px solid var(--ink);
+    padding: 18px 20px;
+    margin-top: 26px;
+  }
+  .callout p { margin: 0; font-size: 15px; }
+  .callout .k { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; display: block; margin-bottom: 4px; }
+
+  /* ---------- chips ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chip {
+    font-size: 12px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    padding: 3px 9px;
+    border-radius: 2px;
+    line-height: 1.7;
+  }
+
+  footer {
+    margin-top: 68px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 480px) {
+    body { font-size: 14.5px; padding: 0 15px 72px; }
+    .spec dd { font-size: 19px; }
+  }
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Scenario Spec / Long-haul Driver</p>
+  <h1>長距離ドライバー<br>8,000字 構成書</h1>
+  <p class="standfirst">参考動画（17:13）を実測分解し、そこから逆算した8,000字の設計。ジャンルは<strong>日常密着・淡々系モノローグ</strong>。事件も伏線もオチも要らない型です。</p>
+  <dl class="spec">
+    <div><dt>本文</dt><dd>8,000<small> 字</small></dd></div>
+    <div><dt>推定尺</dt><dd>25.6<small> 分</small></dd></div>
+    <div><dt>話速</dt><dd>312<small> 字/分</small></dd></div>
+    <div><dt>参考動画比</dt><dd>1.49<small> 倍</small></dd></div>
+  </dl>
+</header>
+
+<section>
+  <h2><span class="tag">01</span>参考動画の実測</h2>
+  <p class="lede">本文5,376字／17分13秒。話速312字/分から逆算すると、<strong>8,000字は約25分36秒</strong>。参考動画より8分以上長い。ここが構成上の最重要ポイントで、<span class="hl">同じ骨格をそのままなぞると2,600字ぶん足りません。</span></p>
+
+  <div class="bars">
+    <div class="bar-row"><div class="bar-label"><span class="t">0:00</span>深夜のキャブ／70cmの寝床<span class="bar-track"><span class="bar-fill" style="width:48.1%"></span></span></div><div class="bar-num">428</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">1:20</span>コインシャワーと早川<span class="bar-track"><span class="bar-fill" style="width:31.1%"></span></span></div><div class="bar-num">277</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">2:10</span>キャブの朝飯<span class="bar-track"><span class="bar-fill" style="width:37.8%"></span></span></div><div class="bar-num">336</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">3:10</span>点検と出発<span class="bar-track"><span class="bar-fill" style="width:29.9%"></span></span></div><div class="bar-num">266</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">4:00</span>走行の快楽<span class="bar-track"><span class="bar-fill" style="width:38.4%"></span></span></div><div class="bar-num">342</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">5:00</span>事故渋滞と裏道<span class="bar-track"><span class="bar-fill" style="width:38.3%"></span></span></div><div class="bar-num">341</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">6:10</span>到着とバース<span class="bar-track"><span class="bar-fill" style="width:24.9%"></span></span></div><div class="bar-num">222</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">7:00</span>手降ろし200個<span class="bar-track"><span class="bar-fill" style="width:33.5%"></span></span></div><div class="bar-num">298</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">7:50</span>伝票待ち15分<span class="bar-track"><span class="bar-fill" style="width:26.4%"></span></span></div><div class="bar-num">235</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">8:40</span>片桐が詰められる／同僚の電話<span class="bar-track"><span class="bar-fill" style="width:46.1%"></span></span></div><div class="bar-num">410</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">9:40</span>帰路とコンビニ<span class="bar-track"><span class="bar-fill" style="width:20.7%"></span></span></div><div class="bar-num">184</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">10:30</span>アパート帰宅<span class="bar-track"><span class="bar-fill" style="width:42.6%"></span></span></div><div class="bar-num">379</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">11:30</span>休日の朝<span class="bar-track"><span class="bar-fill" style="width:44.8%"></span></span></div><div class="bar-num">399</div></div>
+    <div class="bar-row peak"><div class="bar-label"><span class="t">12:40</span>休日の宴（クライマックス）<span class="bar-track"><span class="bar-fill" style="width:100%"></span></span></div><div class="bar-num">890</div></div>
+    <div class="bar-row"><div class="bar-label"><span class="t">15:40</span>締め<span class="bar-track"><span class="bar-fill" style="width:41.5%"></span></span></div><div class="bar-num">369</div></div>
+  </div>
+
+  <div class="callout">
+    <p><span class="k">19 : 43 : 38</span>導入／労働／報酬の比率。<strong>労働より報酬パートのほうが長い</strong>のがこの型の核心です。しんどさを描く動画ではなく、<span class="hl">報酬を描くために、しんどさを前振りしている動画</span>。最長ブロックは休日の宴（890字・全体の16.6%）。</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">02</span>この型の解剖</h2>
+  <p class="lede">僕が最初に想定した感動ドラマ系とは別物でした。以下が実際に効いている装置です。</p>
+
+  <ol class="finds">
+    <li>
+      <h4>事件が起きない。そして解決もしない</h4>
+      <p>山場は「2分遅れで嫌味を言われる」だけ。復讐も謝罪もなく、片桐がセンター長に詰められるのを<strong>遠くから見るだけ</strong>で終わる。溜飲を下げすぎない絶妙な止め方で、ここを踏み外すとスカッと系に変質します。</p>
+    </li>
+    <li>
+      <h4>数字が骨格。形容詞を使わない</h4>
+      <p>70cm／手取り25万／月12日／200円3分／80円／20kg×200個／2分／15分／298円／3秒。<strong>しんどさもうれしさも、全部数字で出している。</strong>「つらい」「うまい」と書かない代わりに数字が実感の証明書として機能しています。</p>
+      <span class="ex mono">密度 ≒ 150字に1個。8,000字なら <b>50〜55個</b> 必要。</span>
+    </li>
+    <li>
+      <h4>全編が「70cm ⇔ 6畳」の対比で貫かれている</h4>
+      <p>同じ要素を前半（車中）と後半（自宅）で<strong>必ず二度出す</strong>。天井に手が届く→手を伸ばしても壁に当たらない。この反復が、説明ゼロで感情を運びます。最大の仕掛け。</p>
+    </li>
+    <li>
+      <h4>飯が主役。クライマックスは食事シーン</h4>
+      <p>味噌汁80円 → おにぎり350円 → 鮭カマ298円。<strong>後半3分は完全に飯動画</strong>。焼ける音、醤油の焦げた匂い、箸が止まる、目を閉じる。ここに一番文字数を使う。</p>
+    </li>
+    <li>
+      <h4>セリフが極端に短く、感情を説明しない</h4>
+      <p>早川との会話は6往復すべて1行。「今日どこ?」「仙台。」「私、盛岡。」で終わり。地の文で気持ちを解説する行が<strong>1行もありません</strong>。</p>
+    </li>
+    <li>
+      <h4>独り言が地の文に混ざってリズムを作る</h4>
+      <p>「よし」「うるせえ」「いてえ」「やべえな、これ」「抜いてけ、抜いてけ」。カギカッコなしの短い呟きが句読点の役割を果たし、朗読のテンポを生んでいます。</p>
+    </li>
+    <li>
+      <h4>リフレインで印象を固定する</h4>
+      <p>「仙台から直送して、1週間寝かせて、炙って」が2回。「この音だよ」が2回。<strong>各パートに1つ、同じフレーズを二度置く。</strong></p>
+    </li>
+    <li>
+      <h4>オチない。成長も救済もない</h4>
+      <p>締めは「明後日の田楽のことを考えてる時点で、多分まだ大丈夫だ」。何も解決しないまま、<strong>続いていくことだけを肯定して終わる。</strong>この型の正解の着地です。</p>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="tag">03</span>感情曲線はJ字</h2>
+  <figure>
+    <div class="curve-box">
+      <svg viewBox="0 0 700 210" role="img" aria-label="14章の感情曲線。前半でじわじわ下降し、伝票待ちで最低、休日の宴で最高値に達するJ字カーブ。">
+        <defs>
+          <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.24"/>
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line x1="30" y1="188" x2="690" y2="188" stroke="var(--rule)" stroke-width="1"/>
+        <path d="M40,142 L89,134 L139,123 L188,126 L237,91 L286,145 L335,155 L385,171 L434,177 L483,134 L532,97 L582,78 L631,38 L680,75 L680,188 L40,188 Z" fill="url(#fill)"/>
+        <polyline points="40,142 89,134 139,123 188,126 237,91 286,145 335,155 385,171 434,177 483,134 532,97 582,78 631,38 680,75"
+                  fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="434" cy="177" r="5" fill="var(--warn)"/>
+        <circle cx="631" cy="38" r="5" fill="var(--accent)"/>
+        <text x="434" y="204" fill="var(--ink-3)" font-size="11" text-anchor="middle" font-family="ui-monospace, monospace">⑨ 伝票待ち</text>
+        <text x="631" y="26" fill="var(--ink)" font-size="11.5" text-anchor="end" font-family="ui-monospace, monospace" font-weight="700">⑬ 宴</text>
+        <text x="40" y="204" fill="var(--ink-3)" font-size="11" text-anchor="start" font-family="ui-monospace, monospace">① 寝床</text>
+        <text x="237" y="80" fill="var(--ink-3)" font-size="11" text-anchor="middle" font-family="ui-monospace, monospace">⑤ 走行</text>
+      </svg>
+    </div>
+    <figcaption>W字ではなくJ字。前半でじわじわ削られ、⑨伝票待ちで底を打ち、⑬宴で一気に振り切る。⑤走行だけが前半唯一の上昇点で、これが「それでもこの仕事が嫌いじゃない」を担保しています。ここを削ると全体がただの愚痴になります。</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2><span class="tag">04</span>8,000字 構成表</h2>
+  <p class="lede">14章。参考動画の骨格（1運行＋1休日）を保ったまま解像度を上げて2,624字を吸収します。<span class="hl">オレンジのバッジが増設ポイント。</span></p>
+
+  <div class="part-rule">第1部 導入 ─ 1,800字</div>
+  <div class="beats">
+    <div class="beat">
+      <div class="beat-no">01</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">フック：70cmの寝床</span><span class="beat-meta">500字 / <b>0:00–1:35</b></span></div>
+        <p>身体の不快から入る。壁に肘。寝返りが打てない。そこから名乗り＋スペック開示（年齢・手取り・家賃・月に帰れる日数）へ一気に。<strong>冒頭30秒で数字を4つ出す。</strong></p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="beat-no">02</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">深夜のSA：シャワーと同業者</span><span class="beat-meta">550字 / <b>〜3:20</b></span></div>
+        <p>コインシャワーの秒数・料金。隣のブースから出てくる同業者と、行き先だけの会話。<strong>友達にしない。</strong>「友達ではねえけど、知らないやつでもねえ」の距離感を死守。</p>
+        <span class="beat-add">+270字：会話を1往復だけ増やす。天気か渋滞情報の実務会話で</span>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="beat-no">03</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">キャブ飯：味噌汁とパックご飯</span><span class="beat-meta">400字 / <b>〜4:40</b></span></div>
+        <p>電気ケトル、IHで湯煎、レンジはない。味噌汁の底の豆腐。<strong>「固形物があるだけで飯になる」級の一行を必ず1つ。</strong>ここで「70cmが第2の部屋」という主題を宣言。</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="beat-no">04</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">点検ルーティン</span><span class="beat-meta">350字 / <b>〜5:45</b></span></div>
+        <p>点検ハンマー、灯火確認、ラッシングベルト8本、エア圧。<strong>プロの手つきを見せる唯一の章</strong>で、以降の理不尽が効く土台になる。「考えなくてもやる。それがルーティン」。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-rule">第2部 労働 ─ 3,300字</div>
+  <div class="beats">
+    <div class="beat up">
+      <div class="beat-no">05</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">走行：唯一好きな時間</span><span class="beat-meta">550字 / <b>〜7:30</b></span></div>
+        <p>速度計80km、追い越していく乗用車、朝霧、ミラーの朝日、缶コーヒー120円の一口目。<strong>前半唯一の上昇点。絶対に削らない。</strong></p>
+        <span class="beat-add">+200字：対向・後続のトラックへの視線をもう一段</span>
+      </div>
+    </div>
+    <div class="beat down">
+      <div class="beat-no">06</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">トラブル：渋滞 → 電話 → 裏道</span><span class="beat-meta">600字 / <b>〜9:25</b></span></div>
+        <p>遅延の分数を明示 → 荷主に電話 → 冷たい返し → 高速を降りて県道で挽回。<strong>ここで「20分を2分に縮めた」という数字を立てておくのが最重要。</strong>⑦の理不尽はこの数字がないと効きません。</p>
+        <span class="beat-add">+260字：ルート選択の根拠（信号数・道幅・体で覚えた道）を厚く</span>
+      </div>
+    </div>
+    <div class="beat down">
+      <div class="beat-no">07</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">着荷：バース一発、そして嫌味</span><span class="beat-meta">450字 / <b>〜10:50</b></span></div>
+        <p>プラットフォームとの隙間5cm、15年やり直しなし——という誇りの直後に「2分遅れですね」。<strong>技術の誇示と評価の落差を隣接させる。</strong>「縮めた20分は、あいつには見えねえ」で締める。</p>
+      </div>
+    </div>
+    <div class="beat down">
+      <div class="beat-no">08</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">手降ろし：肉体の限界</span><span class="beat-meta">550字 / <b>〜12:35</b></span></div>
+        <p>20kg×200個をカウントダウンで刻む。汗、軍手、コンクリの熱、15年目の腰。通りすがりの「丁寧に扱ってください」を落とす。<strong>ペットボトルの蓋が開けられない、が効く。</strong></p>
+        <span class="beat-add">+250字：個数の刻みを細かく（100／150／180／あと10）</span>
+      </div>
+    </div>
+    <div class="beat down">
+      <div class="beat-no">09</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">待機 → 溜飲 → 同僚の電話</span><span class="beat-meta">700字 / <b>〜14:50</b></span></div>
+        <p><strong>感情の底。</strong>伝票1枚で15分、立ったまま。「俺の2分と、あいつの15分」。直後に担当者が上司に詰められる声を漏れ聞く——ただし<strong>見るだけで終える</strong>。帰路で同僚に電話し、説明のいらない相手と数分だけ笑う。</p>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="beat-no">10</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">帰路：コンビニ飯と積み込み</span><span class="beat-meta">450字 / <b>〜16:15</b></span></div>
+        <p>おにぎりの値段、今日の食費合計。「鮭は外さねえ」級のこだわりを1つ。復路はフォークで積んでもらえる＝楽、という対比。<strong>ここから空気が緩みはじめる。</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-rule">第3部 報酬 ─ 2,900字</div>
+  <div class="beats">
+    <div class="beat up">
+      <div class="beat-no">11</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">帰宅：3日ぶりの部屋</span><span class="beat-meta">650字 / <b>〜18:20</b></span></div>
+        <p>こもった空気、出しっぱなしのマグカップ＝不在の痕跡。<strong>ここから対比装置を連続発火。</strong>水圧のあるシャワー／時間制限なし／バスタオルのでかさ。ビールを見て、閉める。「明日まで我慢だ」で引っぱる。</p>
+        <span class="beat-add">+270字：不在の痕跡をもう2つ（郵便物、しおれた鉢、止まった時計）</span>
+      </div>
+    </div>
+    <div class="beat up">
+      <div class="beat-no">12</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">休日の朝：天井が遠い</span><span class="beat-meta">650字 / <b>〜20:25</b></span></div>
+        <p>「手を伸ばしても届かない」で①を回収。アラームなしで起きる日は月に数回。冷蔵庫に、出先で買った半額の食材が1週間待っている。<strong>「あと何年やれるか」を一瞬だけよぎらせ、すぐ「やめやめ」で打ち切る。</strong>深掘り厳禁。</p>
+        <span class="beat-add">+250字：二度寝、洗濯、買い出しが要らない理由の説明</span>
+      </div>
+    </div>
+    <div class="beat up">
+      <div class="beat-no">13</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">宴：クライマックス</span><span class="beat-meta">1,150字 / <b>〜24:05</b></span></div>
+        <p><strong>全体の14%を1シーンに使う。</strong>仕込み → 焼ける音 → 一口目 → ローテ → 最後の一切れ → 2本目。匂い、音、箸が止まる、目を閉じる。「〇〇から直送して1週間寝かせて炙って」をここで<strong>2回リフレイン</strong>。「俺の居酒屋だ」「客は俺1人だけど」。締めに<span class="hl">「この3秒のために5日間走ってる」級の一行</span>を必ず1本。</p>
+        <span class="beat-add">+260字：仕込み手順と、外食との金額比較を厚く</span>
+      </div>
+    </div>
+    <div class="beat">
+      <div class="beat-no">14</div>
+      <div class="beat-body">
+        <div class="beat-head"><span class="beat-title">締め：棚卸しと、次の仕入れ</span><span class="beat-meta">450字 / <b>〜25:35</b></span></div>
+        <p>今週の出来事を<strong>短文で箇条書きのように並べて</strong>「全部足したら、まあまあだ」。皿を洗う、洗濯物を畳む。次の運行先のスーパーで買うものを考える＝<strong>次の仕入れが次の希望</strong>。布団で「手を伸ばしても壁に当たらない」を最終回収し、年齢＋「多分まだ大丈夫だ」で着地。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">05</span>尺の伸ばし方</h2>
+  <p class="lede">2,624字ぶんの増設が必要ですが、<strong>事件を足してはいけません。</strong>この型の視聴者が見に来ているのは展開ではなく生活のディテールです。増やすのは解像度であって出来事の数ではない。</p>
+
+  <div class="warn-box">
+    <ul>
+      <li><b>事件を2つ入れる</b>（渋滞＋パンク、トラブル連発）── テンポが物語調になり、この型の「淡々」が壊れます。</li>
+      <li><b>主人公の過去を語らせる</b>（離婚、借金、諦めた夢）── 一気に湿っぽくなり、感動系という別ジャンルに変質します。参考動画は過去を一切語りません。</li>
+      <li><b>荷主に復讐する／謝らせる</b> ── スカッと系になります。参考動画は「上司に詰められているのを見る」で止めている。この抑制がジャンルの生命線。</li>
+      <li><b>教訓・説教を入れる</b>（「物流は社会を支えている」等）── 視聴者が最も嫌う着地。主人公は一度も自分の仕事を意義づけません。</li>
+      <li><b>同じ描写の水増し</b> ── 「狭い」を3回書くのではなく、狭さの<b>別の実害</b>（着替え、荷物の置き場、冬の結露）を出す。</li>
+    </ul>
+  </div>
+
+  <h3>正しい増設先</h3>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>章</th><th>増設</th><th>何を足すか</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">02</td><td class="mono">+270</td><td>同業者との会話を1往復。ただし実務の話だけ</td></tr>
+        <tr><td class="mono">05</td><td class="mono">+200</td><td>走行中の視線（対向車、後続、空、ラジオ）</td></tr>
+        <tr><td class="mono">06</td><td class="mono">+260</td><td>ルート判断の根拠。プロの頭の中を見せる</td></tr>
+        <tr><td class="mono">08</td><td class="mono">+250</td><td>個数の刻みと身体の変化を細かく</td></tr>
+        <tr><td class="mono">11</td><td class="mono">+270</td><td>不在の痕跡＝留守の物証を増やす</td></tr>
+        <tr><td class="mono">12</td><td class="mono">+250</td><td>休日の朝の「何もしない時間」の質感</td></tr>
+        <tr><td class="mono">13</td><td class="mono">+260</td><td>仕込みの手順、外食との金額比較</td></tr>
+        <tr><td class="mono">他</td><td class="mono">+864</td><td>全章に薄く。1章あたり60〜80字</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">06</span>対比ペア表</h2>
+  <p class="lede">前半で置いたものを、後半で必ずもう一度出す。<strong>この対応表を埋めてから書き出せば、後半は自動的に効きます。</strong>最低6組、できれば8組。</p>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>前半：車中（第1〜2部）</th><th>後半：自宅（第3部）</th></tr></thead>
+      <tbody>
+        <tr><td>幅70cmの仮眠スペース</td><td>6畳の部屋</td></tr>
+        <tr><td>天井に手が届く</td><td>手を伸ばしても壁に当たらない</td></tr>
+        <tr><td>コインシャワー 200円・3分</td><td>時間制限なし・水圧のあるシャワー</td></tr>
+        <tr><td>手ぬぐいサイズで全身を拭く</td><td>バスタオルのでかさ</td></tr>
+        <tr><td>インスタント味噌汁 80円</td><td>半額シールの鮭カマ 298円</td></tr>
+        <tr><td>目覚ましで叩き起こされる</td><td>アラームなしで起きる（月4回）</td></tr>
+        <tr><td>隣の車のいびき、アイドリング音</td><td>テレビ・冷蔵庫・ビールの3つの音だけ</td></tr>
+        <tr><td>俺の2分（怒られる）</td><td>あいつの15分（謝らない）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">07</span>文体ルール</h2>
+  <p class="lede">朗読前提。参考動画の語り口をそのまま踏襲するための具体ルールです。</p>
+  <ul class="rules">
+    <li>一人称は<strong>「俺」</strong>。常体。現在形と過去形を意図的に混在させる（実況と回想が同居する語り）。</li>
+    <li>一文<strong>25〜30字</strong>を基本。40字を超えたら切る。読点は多めでいい。</li>
+    <li>独り言をカギカッコなしで地の文に混ぜる。<q>よし</q> <q>うるせえ</q> <q>いてえ</q> <q>やべえな、これ</q> <q>抜いてけ、抜いてけ</q></li>
+    <li>会話は<strong>1行1発言</strong>。地の文で気持ちを解説しない。「〜と言われて悔しかった」は禁止。</li>
+    <li><strong>感情語を使わない。</strong>つらい・うれしい・悔しいと書かず、数字と行動で出す。</li>
+    <li>「たくさん」「かなり」「すごく」を<strong>全部具体値に置換</strong>。数量・金額・分数・個数・センチ。</li>
+    <li>体言止めを多用してリズムを作る。<q>70cm。</q> <q>200円、3分。</q> <q>150個。あと50。</q></li>
+    <li>各パートに<strong>リフレインを1つ</strong>。同じフレーズを二度置く。</li>
+    <li>擬音を書かない。音は<strong>状況で描く</strong>（「ジュー」ではなく「この音だよ」）。</li>
+    <li>締めの一行は<strong>解決させない。</strong>「多分まだ大丈夫だ」の温度。断定も悲観もしない。</li>
+  </ul>
+
+  <h3>数字の density チェック</h3>
+  <p>参考動画は5,376字に約35個＝<strong>150字に1個</strong>。8,000字なら<span class="hl">50〜55個</span>が目標値です。書き上げたら数えて、足りなければ「たくさん」を数字に置換して埋めてください。この密度がこのジャンルの品質そのものです。</p>
+</section>
+
+<section>
+  <h2><span class="tag">08</span>ディテールの引き出し</h2>
+  <p class="lede">2本目以降を書くとき、あるいは増設分を埋めるときの素材。<strong>用語の粗さは即コメント欄で叩かれるジャンル</strong>（現役・元職の視聴者が多い）なので、使うなら正確に。</p>
+
+  <h3>運行・実務</h3>
+  <div class="chips"><span class="chip">点呼</span><span class="chip">アルコールチェック</span><span class="chip">デジタコ</span><span class="chip">運行指示書</span><span class="chip">4時間ごとに30分休憩</span><span class="chip">拘束時間</span><span class="chip">改善基準告示</span><span class="chip">2024年問題</span><span class="chip">荷待ち時間の記録義務</span><span class="chip">中継輸送</span></div>
+
+  <h3>荷役・車両</h3>
+  <div class="chips"><span class="chip">バース</span><span class="chip">手積み手降ろし</span><span class="chip">ラッシングベルト</span><span class="chip">パレット</span><span class="chip">ウイング</span><span class="chip">リーファー（温度記録）</span><span class="chip">平ボディ（シート掛け）</span><span class="chip">空車回送</span><span class="chip">片荷</span><span class="chip">帰り便</span></div>
+
+  <h3>車中生活</h3>
+  <div class="chips"><span class="chip">サンシェード</span><span class="chip">電気毛布</span><span class="chip">ポータブル電源</span><span class="chip">シガーソケット分岐</span><span class="chip">コインランドリー</span><span class="chip">SA食堂の日替わり</span><span class="chip">自販機のうどん</span><span class="chip">冬の結露</span><span class="chip">夏のアイドリング規制</span></div>
+
+  <h3>ご当地スーパー（仕入れネタの心臓部）</h3>
+  <p>「運行ルートが変わると仕入れ先が変わる」は参考動画で最も気の利いた仕掛けです。<strong>行き先ごとに1つ、地元にない店と商品を決めておく</strong>と、シリーズ化にそのまま耐えます。</p>
+  <div class="chips"><span class="chip">名古屋：バロー／つけてみそかけてみそ</span><span class="chip">新潟：原信</span><span class="chip">福岡：ハローデイ</span><span class="chip">関西：業務スーパー・ラ・ムー</span><span class="chip">北海道：セイコーマート</span><span class="chip">仙台：半額の鮭カマ</span></div>
+
+  <h3>画になる情景</h3>
+  <div class="chips"><span class="chip">新東名の深夜</span><span class="chip">東北道の朝霧</span><span class="chip">雪の日本海側</span><span class="chip">関越トンネル</span><span class="chip">チェーン規制</span><span class="chip">峠の日の出</span><span class="chip">ミラーに映る朝日</span><span class="chip">深夜のSAはトラックだけが起きてる</span></div>
+</section>
+
+<footer>
+  参考動画 17:13 ／ 本文実測 5,376字 ／ 話速 312字/分 から算出。字数は空白を除いた実数。<br>
+  ※ 章別の字数は目安です。第3部の合計だけは死守してください（報酬パートが労働パートより短くなると、この型は成立しません）。
+</footer>
+
+</div>
