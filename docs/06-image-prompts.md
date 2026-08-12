@@ -26,14 +26,15 @@
 ```
 A super cute chibi long-tailed tit (shima-enaga) fairy character named Yukimi,
 perfectly round fluffy snow-white body, soft downy feather texture,
-large sparkling black eyes with bright catchlights,
+large sparkling warm amber/orange eyes with a bright black catchlight,
 tiny black triangular beak, soft pink round blush on cheeks,
 grey and white speckled wings, long black-and-grey tail,
 wearing a light blue knitted scarf with an embroidered snowflake and fringed ends,
 3D render style, soft plush toy aesthetic, gentle and kind expression
 ```
 
-**日本語メモ**：まるい／白い／ふわふわ／大きな黒い目に光／小さな黒いくちばし／ピンクのチーク／グレーの斑の翼／**水色マフラー（雪の結晶刺繍）** ← マフラーは絶対に外さない
+**日本語メモ**：まるい／白い／ふわふわ／大きなオレンジ・琥珀色の目に黒い光／小さな黒いくちばし／ピンクのチーク／グレーの斑の翼／**水色マフラー（雪の結晶刺繍）** ← マフラーは絶対に外さない
+**（2026-08-08〜：目はオレンジ／琥珀色に統一。黒目バージョンは旧デザイン）**
 
 ---
 
@@ -131,7 +132,7 @@ no scarf, missing scarf, red scarf, green scarf
 ```
 A super cute chibi long-tailed tit (shima-enaga) fairy character named Yukimi,
 perfectly round fluffy snow-white body, soft downy feather texture,
-large sparkling black eyes with bright catchlights, tiny black triangular beak,
+large sparkling warm amber/orange eyes with a bright black catchlight, tiny black triangular beak,
 soft pink round blush on cheeks, grey and white speckled wings,
 long black-and-grey tail, wearing a light blue knitted scarf with an embroidered
 snowflake and fringed ends, 3D render style, soft plush toy aesthetic,
