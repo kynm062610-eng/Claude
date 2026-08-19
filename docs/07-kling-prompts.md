@@ -1,4 +1,4 @@
-# 07. Kling用プロンプト
+# 07. 動画生成プロンプト（Veo 3.1 / Kling）
 
 **方針：動かしすぎない。**
 ゆきみの世界は「静けさ」が資産。派手に動かすと癒しが壊れる。
@@ -194,3 +194,104 @@ assets/video/
 - [ ] 全体を通して「静か」に見える
 
 **1つでも欠けたら、その5秒は使わない。**
+
+---
+
+# ★ Veo 3.1 / Google Flow（2026-08-19 追加・こちらを主に使う）
+
+出典：Veo 3.1 公式機能まとめ（ユーザー提供資料 2026-08-19）
+
+## 使える新機能とゆきみへの当てはめ
+
+| 機能 | ゆきみでどう使うか |
+|---|---|
+| **最初と最後のフレームを指定** | **同じキャラ画像を最初と最後の両方に入れる。** 間が補間されるので途中で別の鳥に変形できない。**キャラ崩れの最有力対策** |
+| **複数画像から生成** | キャラ画像＋背景画像を同時に渡して世界観を固定する |
+| **動画の延長（最後の1秒を起点に継ぎ足し）** | **8秒クリップの使い回しをやめられる。** 34秒を継ぎ目なしで作る。長尺化の土台にもなる |
+| オブジェクトの追加 | 生成後に雪の結晶・星を足す |
+
+## 得意・苦手（公式）
+
+| | 内容 | ゆきみへの影響 |
+|---|---|---|
+| **得意** | 水・火・煙・**雪**・雨の物理表現 | **ゆきみの世界は雪。相性は最高** |
+| **得意** | 環境音の生成 | 使わない（BGMは自前） |
+| **苦手** | **アニメ系** | **イラスト寄りに崩さない。3Dぬいぐるみ質感のまま維持する** |
+| **苦手** | **日本語の発話** | **Veoに喋らせない。声はElevenLabs一択** |
+
+## クレジット（Flow）
+
+| プラン | 月あたり |
+|---|---|
+| 無料 | 100 |
+| Google AI Pro | 1,000 |
+| Google AI Ultra | 25,000 |
+
+**撮り直しでクレジットが減る。** プロンプトを毎回直すより、下の必須ブロックを固定で使う。
+
+---
+
+## ★ キャラ崩れ対策（実際に起きた事故と対処）
+
+### 事故1：フクロウになった（2026-08-19）
+
+耳のような羽（羽角）が生え、目つきが鋭くなった。
+**原因：プロンプトに種類を書いていなかった。** Veoは「丸くて白い鳥」を学習量の多いフクロウとして解釈する。
+
+### 事故2：勝手に声が入った（2026-08-19）
+
+**原因：`as if speaking softly` と書いた。** Veo 3.1は音声を自動生成するため、
+「話している」と書いた時点で音声を作りにいく。
+
+### 事故3：天使の羽が生えた
+
+**原因：羽の枚数を指定していなかった。**
+
+### → 必須ブロック（毎回そのまま入れる）
+
+```
+SPECIES - important:
+This is a long-tailed tit (shima-enaga), a small round white songbird.
+It is NOT an owl.
+- no ear tufts, no horns, no feather tufts on the head
+- the head is completely round and smooth
+- small triangular black beak
+- it has a long straight tail behind the body
+
+APPEARANCE LOCK - do not change:
+- same body shape, proportions and size as the reference image
+- large round warm amber orange eyes with a bright black catchlight
+- same light blue knitted scarf with the snowflake pattern
+- exactly two wings only, one on each side, both folded against the body
+- no extra wing, no wing above or behind the head
+- do not change any color
+- keep the 3D plush texture, do not turn it into anime or 2D illustration
+
+AUDIO:
+Silent. No voice, no speech, no dialogue, no narration, no music, no sound effects.
+```
+
+### 書いてはいけない語
+
+```
+❌ as if speaking / talking / lip sync   → 音声が生成される
+❌ anime / illustration / 2D             → Veoの苦手分野に入る
+❌ don't move / stay completely still    → 全部止まって静止画になる
+```
+
+**「動かさないで」ではなく「この動きだけして」と書く。**
+
+---
+
+## 推奨の作り方（34秒の台本を1本で作る）
+
+```
+1. 最初のフレーム＝キャラ画像
+2. 最後のフレーム＝同じキャラ画像      ← ここが崩れ対策
+3. 8秒を生成する
+4. 「動画の延長」で最後の1秒から継ぎ足す（×3〜4回）
+5. 34秒まで伸ばす
+6. CapCutでElevenLabsの音声と字幕を乗せる
+```
+
+**クリップの使い回しはしない。** 延長機能があるので不要になった。
