@@ -265,7 +265,10 @@ APPEARANCE LOCK - do not change:
 - exactly two wings only, one on each side, both folded against the body
 - no extra wing, no wing above or behind the head
 - do not change any color
-- keep the 3D plush texture, do not turn it into anime or 2D illustration
+- keep the 3D plush toy texture
+- stylized CGI, cute children's animation film look
+- NOT photorealistic wildlife footage
+- do not turn it into anime or 2D illustration
 
 AUDIO:
 Silent. No voice, no speech, no dialogue, no narration, no music, no sound effects.
@@ -276,6 +279,7 @@ Silent. No voice, no speech, no dialogue, no narration, no music, no sound effec
 ```
 ❌ as if speaking / talking / lip sync   → 音声が生成される
 ❌ anime / illustration / 2D             → Veoの苦手分野に入る
+❌ camera pulls back / zoom / pan        → 延長のたびに絵が遠ざかる
 ❌ don't move / stay completely still    → 全部止まって静止画になる
 ```
 
@@ -283,15 +287,66 @@ Silent. No voice, no speech, no dialogue, no narration, no music, no sound effec
 
 ---
 
+## ★ Veoは指定しないと実写になる（最重要）
+
+> 「特に指定しなければ**実写動画が生成されます**」（Veo 3.1 公式解説動画より）
+
+**フクロウ化の本当の原因はこれ。** 実写の「丸くて白い鳥」に寄せた結果、フクロウの特徴が出た。
+**種類を書くだけでは足りない。質感を必ず指定する。**
+
+```
+3D animated character, stylized CGI, soft plush toy texture, cute
+children's animation film look. Not photorealistic wildlife footage.
+```
+
+※ `anime` とは書かない。Veoはアニメ系が苦手。**3D CGIと書く。**
+
+---
+
+## ★ 延長は「前クリップの最後の1秒」が起点
+
+**カメラを動かすと、繋ぐたびに絵が遠ざかる。**
+最後の1秒で引ききっていれば、次のクリップは引いた画から始まる。
+
+```
+❌ Camera slowly pulls back        → 延長するたびに遠ざかる
+⭕ Camera is completely static     → 何回繋いでも同じ画
+```
+
+**画の変化はCapCut側でズームを付けて作る。** Veoでは固定。
+
+延長のプロンプトは**短くていい**（公式例は「赤い車が道路を右に曲がる」の一文のみ）。
+
+---
+
+## Flowの操作（画面の場所）
+
+| やること | 場所 |
+|---|---|
+| モード選択 | フォームの**左上**：テキストから動画／**フレームから動画**／動画の素材 |
+| 比率・本数・モデル | フォームの**右上** |
+| **最初と最後のフレーム** | 「**フレームから動画**」を選ぶ |
+| 複数画像を参考にする | 「**動画の素材**」を選ぶ（キャラ画像＋背景画像など） |
+| **延長** | 動画サムネ**左上**の「シーンに追加／シーンビルダー」→ 画面下の**＋拡張** |
+| オブジェクト追加 | 動画を開く → 追加したい時点まで進める → **右上の編集** → 範囲を選択 |
+
+### 出力の制約
+
+**1080pへのアップスケールは横長動画のみ。**
+ゆきみは9:16なので **720p MP4 で書き出してCapCutで処理する。**
+
+---
+
 ## 推奨の作り方（34秒の台本を1本で作る）
 
 ```
-1. 最初のフレーム＝キャラ画像
-2. 最後のフレーム＝同じキャラ画像      ← ここが崩れ対策
-3. 8秒を生成する
-4. 「動画の延長」で最後の1秒から継ぎ足す（×3〜4回）
-5. 34秒まで伸ばす
-6. CapCutでElevenLabsの音声と字幕を乗せる
+1. モードは「フレームから動画」
+2. 最初のフレーム＝キャラ画像
+3. 最後のフレーム＝同じキャラ画像      ← ここが崩れ対策
+4. カメラは固定で8秒を生成する
+5. シーンビルダーの「＋拡張」で継ぎ足す（×3〜4回）
+6. 34秒まで伸ばす
+7. 720pで書き出し、CapCutでズーム・音声・字幕を乗せる
 ```
 
 **クリップの使い回しはしない。** 延長機能があるので不要になった。
