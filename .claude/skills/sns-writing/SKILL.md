@@ -25,6 +25,19 @@ Web検索で集めた最新のキャプション/コピーの書き方をまと�
 **X (旧Twitter)**
 - 本当にトレンドに乗ってる時だけ1〜2個ハッシュタグをつける程度。基本は文章勝負。
 
+## プロフィール文（bio）の文字数上限（2026年9月時点）
+
+プロフィール文を作る時は、書く前に必ずこの上限を確認してから文章を組み立てること
+（文字数オーバーで書き直しにならないように）。ただし上限は変わることがあるので、
+半年以上経ってたら`WebSearch`で最新の数字を取り直すこと。
+
+| プラットフォーム | bio文字数上限 |
+|---|---|
+| X（旧Twitter） | 160文字（表示名は50文字まで） |
+| Instagram | 150文字 |
+| Threads | 150文字 |
+| YouTube | ハンドル横の短い自己紹介は160文字。別途「概要」欄はもっと長く書ける（数百〜1000文字程度） |
+
 ## 書き方のコツ（共通）
 
 - 冒頭の一文＝フック。ここで「答えが気になる」情報ギャップを作ると続きを読ませられる。
@@ -36,3 +49,5 @@ Web検索で集めた最新のキャプション/コピーの書き方をまと�
 - [How to Write Social Media Captions That Actually Get Engagement (2026 Guide)](https://www.krumzi.com/blog/how-to-write-social-media-captions-that-actually-get-engagement-2026-guide)
 - [Viral Instagram & TikTok Caption Trends 2026](https://captionory.com/blog/viral-instagram-and-tiktok-caption-trends-2026-whats-working-right-now)
 - [Caption Character Limits 2026 — Instagram, X, TikTok, LinkedIn, Facebook](https://wildandfreetools.com/blog/caption-character-limits-2026-instagram-x-tiktok-linkedin/)
+- [Social Media Character Limits 2026: The Complete Cheat Sheet](https://www.limitora.com/blog/social-media-character-limits-2026.html)
+- [Threads Bio Character Limit 2026](https://momentumhive.app/blog/threads-bio-character-limit-2026)
