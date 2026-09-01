@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Any action that spends money, makes a purchase, or subscribes/upgrades a paid plan",
+      "Visiting websites that are unfamiliar, unverified, or flagged as risky/malicious"
+    ]
+  }
+}
