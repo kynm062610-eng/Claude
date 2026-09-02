@@ -7,6 +7,10 @@ description: Use when writing or growing a note.com article — 記事の書き�
 
 Web検索で集めたnoteの伸ばし方をまとめたもの。半年〜1年経ったら`WebSearch`で再確認してから使うこと。
 
+## プロフィール文字数上限
+
+- noteのプロフィール自己紹介文は**140文字以内**。
+
 ## 無料記事と有料記事の比率
 
 - 無料記事だけだとフォロワーは増えにくく、有料記事だけだと読者がつかない。

@@ -49,3 +49,62 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
 ## 出典（2026年9月時点、顔出しなし関連）
 - [The First 3 Seconds: Hook Structures That Stop Scroll on Shorts](https://virvid.ai/blog/first-3-seconds-hook-faceless-shorts-2026)
 - [Best Faceless Video Ideas for TikTok and Reels in 2026](https://www.viibeo.com/blog/best-faceless-video-ideas-for-tiktok-and-reels-in-2026)
+
+## ビジュアルアイデンティティ（アイコン・ヘッダー画像）
+
+顔出しできない前提で、「完全に無機質なロゴ」ではなく「人の気配を感じるが顔は見えない」構図
+にすることで、心理的な好奇心（もっと知りたい、というギャップ）を作る方針にした。
+全プラットフォーム共通のアイコンで統一し、認知されやすくする。
+
+**アイコン画像（全プラットフォーム共通・ChatGPTで生成する用プロンプト）**
+```
+A minimalist digital illustration for a social media profile icon.
+A silhouette of a man sitting in the driver's seat of a large truck,
+viewed from the side, face completely obscured by backlight and shadow
+(no facial features visible, ensuring anonymity).
+Warm orange sunset light glowing through the windshield behind him,
+deep navy blue silhouette in the foreground.
+Clean, flat, slightly stylized illustration style (not photorealistic),
+bold simple shapes that stay clear at small icon size,
+circular composition, high contrast, moody and cinematic mood,
+no text, no logos.
+```
+
+**ヘッダー/バナー画像（X・YouTubeチャンネルアート用プロンプト）**
+```
+A cinematic wide banner image for a social media header.
+Interior view from inside a large truck cab at dawn, shot from behind
+the driver's seat so the driver is only a dark silhouette, face not visible.
+Sunrise light streaming through the windshield in warm orange and pink tones.
+On the dashboard, a smartphone is mounted showing a video editing timeline
+interface glowing softly (a subtle detail suggesting a video editing side hustle).
+Moody, atmospheric, slightly desaturated cinematic color grade,
+photorealistic style, wide aspect ratio suitable for a banner,
+no visible text, no logos.
+```
+
+## 各プラットフォームの自己紹介文（2026年9月時点で確定した文面）
+
+コアメッセージ（トラック歴14年×家族のための副業挑戦）は共通、文字数上限は各スキル
+（sns-writing / note-writing）参照。
+
+**X（160文字以内）**
+> トラック歴14年、30代／関西。家族に「やりたい」を全部叶えたくて、動画編集の副業に挑戦中。顔は出しません、中身で勝負します。トライアル600円事件、断った話などリアルな記録を発信中。
+
+**Instagram（150文字以内）**
+> 🚛トラック歴14年／関西
+> 家族のために、動画編集の副業に挑戦中
+> 顔出しなし、等身大の記録
+> 日常・挑戦・売上、全部見せます
+
+**Threads（150文字以内）**
+> トラック歴14年、30代関西在住。
+> 家族のために動画編集の副業に挑戦中。
+> 顔は出さず、中身で稼ぐ。
+> リアルな挑戦の記録、ここに残してます。
+
+**YouTube（ハンドル横の短い紹介・160文字）**
+> トラック歴14年の30代が、家族のために動画編集の副業に挑戦する記録。顔出しなし。日常・挑戦・売上をリアルに発信します。
+
+**note（140文字以内）**
+> トラック歴14年、30代／関西。家族に「やりたい」を全部叶えたくて、動画編集の副業に挑戦中。顔出しはせず、リアルな挑戦記録をここに残していきます。noteでは日々の気づきや裏話も書いていきます。
