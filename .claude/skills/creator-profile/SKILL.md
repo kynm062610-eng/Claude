@@ -21,7 +21,9 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
 - アカウント（X/Instagram/Threads/YouTube）は全部「トラックドライバーの副業挑戦」1本のテーマに統一
 - 発信内容：日常、挑戦した内容、売上などの記録
 - 最終ゴール：①動画編集の副業で稼ぐ ②フォロワーが増えたらnoteの販売
-- **顔出し・身バレ回避が最重要の制約**。台本・構図・文章を考える時は必ずこれを前提にする
+- **実写での顔出し・身バレ回避が最重要の制約**（動画・写真で本人の顔は絶対に映さない）。
+  ただし、AI生成のイラストアバター（本人と一致しない架空のキャラクター）は身バレしないため使ってOK。
+  プロフィールアイコン・ヘッダー・サムネの装飾として、このイラストアバターを統一キャラとして使う。
 
 ## 身バレ・特定リスクを避けるためのルール（コンテンツを作る時、必ずチェックする）
 
@@ -52,36 +54,52 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
 
 ## ビジュアルアイデンティティ（アイコン・ヘッダー画像）
 
-顔出しできない前提で、「完全に無機質なロゴ」ではなく「人の気配を感じるが顔は見えない」構図
-にすることで、心理的な好奇心（もっと知りたい、というギャップ）を作る方針にした。
-全プラットフォーム共通のアイコンで統一し、認知されやすくする。
+**方針（2026年9月確定）**：実写の顔は出さないが、AI生成イラストの「統一キャラクター」を
+顔ありで使う。理由は、無機質なロゴやシルエットより「顔があるもの」の方が人は興味を持ちやすい
+（人間の心理として顔に注意が向きやすい）ため。
+
+ただし表情・スタイリングは「強面・威圧的」ではなく、**「頑張り屋で温かみのある、応援したくなる顔」**
+に寄せる。理由：このアカウントのコンテンツは「家族のために副業に挑戦する等身大の記録」で、
+共感・応援がエンゲージメントの核。怖い/威圧的なビジュアルは「近寄りがたさ」を生み、
+コンテンツのトーン（600円案件を正直に語る、みたいな親近感重視の投稿）とズレて逆効果になりうる。
+チェーンネックレスや鋭い睨みつけるような目線など「強面・組長感」の出る要素は避ける。
+
+同じキャラクターを全プラットフォーム・全サムネで使い回して認知を統一する。
 
 **アイコン画像（全プラットフォーム共通・ChatGPTで生成する用プロンプト）**
 ```
-A minimalist digital illustration for a social media profile icon.
-A silhouette of a man sitting in the driver's seat of a large truck,
-viewed from the side, face completely obscured by backlight and shadow
-(no facial features visible, ensuring anonymity).
-Warm orange sunset light glowing through the windshield behind him,
-deep navy blue silhouette in the foreground.
-Clean, flat, slightly stylized illustration style (not photorealistic),
-bold simple shapes that stay clear at small icon size,
-circular composition, high contrast, moody and cinematic mood,
+A digital illustration portrait for a social media profile icon.
+A Japanese man in his 30s, sitting in the driver's seat of a large truck,
+one hand resting on the steering wheel. Short neat dark hair, light stubble,
+a warm and determined expression — hardworking but approachable and kind,
+NOT an intimidating or aggressive glare. Wearing a simple dark work jacket
+with a small "安全第一" (safety first) patch on the sleeve, no chains,
+no jewelry, nothing that reads as tough-guy or gang-like.
+Soft warm light coming through the truck window, sincere and hopeful mood.
+Semi-realistic illustrated character style (quality character art,
+not photorealistic, not anime-deformed), close-up crop suitable for
+a small circular profile icon, stays clear and recognizable at small size,
 no text, no logos.
 ```
 
 **ヘッダー/バナー画像（X・YouTubeチャンネルアート用プロンプト）**
 ```
-A cinematic wide banner image for a social media header.
-Interior view from inside a large truck cab at dawn, shot from behind
-the driver's seat so the driver is only a dark silhouette, face not visible.
-Sunrise light streaming through the windshield in warm orange and pink tones.
-On the dashboard, a smartphone is mounted showing a video editing timeline
-interface glowing softly (a subtle detail suggesting a video editing side hustle).
-Moody, atmospheric, slightly desaturated cinematic color grade,
-photorealistic style, wide aspect ratio suitable for a banner,
-no visible text, no logos.
+A cinematic wide banner illustration. The same Japanese man in his 30s
+from the profile icon (same hair, same face, same jacket with "安全第一"
+patch, for visual consistency), standing beside his large truck at sunset,
+arms crossed, looking toward the horizon with a determined but warm
+expression — resolve and hope, not anger or intimidation.
+Warm orange and pink sunset sky with dramatic clouds, truck parked on
+a coastal road. Illustrated style matching the profile icon.
+Leave open negative space on the left side of the frame for bold
+Japanese title text to be added separately. Moody but hopeful cinematic
+atmosphere, wide aspect ratio suitable for a header/banner image.
 ```
+
+**バナーのキャッチコピー案**：既に作った「夢を積んで、今日も走る。」は積載と夢を掛けた良いコピー
+なのでそのまま使ってOK。ただし見出しの「トラック野郎の挑戦」は"野郎"がやや硬派・強面の
+ニュアンスを持つので、トーンを合わせるなら「副業に、本気になった。」「家族のために、今日も一歩。」
+のような柔らかい見出しに差し替えるのもアリ。
 
 ## 各プラットフォームの自己紹介文（2026年9月時点で確定した文面）
 
