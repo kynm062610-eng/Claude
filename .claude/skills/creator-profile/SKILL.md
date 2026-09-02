@@ -66,34 +66,29 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
 
 同じキャラクターを全プラットフォーム・全サムネで使い回して認知を統一する。
 
-**アイコン画像（全プラットフォーム共通・ChatGPTで生成する用プロンプト）**
+**アイコン画像（全プラットフォーム共通・ChatGPTで生成する用プロンプト、日本語版）**
 ```
-A digital illustration portrait for a social media profile icon.
-A Japanese man in his 30s, sitting in the driver's seat of a large truck,
-one hand resting on the steering wheel. Short neat dark hair, light stubble,
-a warm and determined expression — hardworking but approachable and kind,
-NOT an intimidating or aggressive glare. Wearing a simple dark work jacket
-with a small "安全第一" (safety first) patch on the sleeve, no chains,
-no jewelry, nothing that reads as tough-guy or gang-like.
-Soft warm light coming through the truck window, sincere and hopeful mood.
-Semi-realistic illustrated character style (quality character art,
-not photorealistic, not anime-deformed), close-up crop suitable for
-a small circular profile icon, stays clear and recognizable at small size,
-no text, no logos.
+SNSのプロフィールアイコン用のイラスト。30代の日本人男性が大型トラックの運転席に座っていて、
+片手をハンドルに添えている。短く整えた黒髪、薄いひげ、温かく芯のある表情——一生懸命だけど
+近寄りやすく優しい印象。威圧的だったり鋭く睨みつけるような表情にはしない。
+シンプルな黒い作業ジャケットを着ていて、袖に小さく「安全第一」のワッペン。
+チェーンやアクセサリーは無し、強面・組長っぽく見える要素は入れない。
+トラックの窓から差し込む柔らかい暖色の光、誠実で希望を感じる雰囲気。
+半写実的なイラストのキャラクターアート（フォトリアルではない、デフォルメの強いアニメ調でもない）。
+小さい円形のプロフィールアイコンとして使っても顔がはっきり分かるようにクローズアップで構図を作る。
+テキストやロゴは入れない。
 ```
 
-**ヘッダー/バナー画像（X・YouTubeチャンネルアート用プロンプト）**
+**ヘッダー/バナー画像（X・YouTubeチャンネルアート用プロンプト、日本語版）**
 ```
-A cinematic wide banner illustration. The same Japanese man in his 30s
-from the profile icon (same hair, same face, same jacket with "安全第一"
-patch, for visual consistency), standing beside his large truck at sunset,
-arms crossed, looking toward the horizon with a determined but warm
-expression — resolve and hope, not anger or intimidation.
-Warm orange and pink sunset sky with dramatic clouds, truck parked on
-a coastal road. Illustrated style matching the profile icon.
-Leave open negative space on the left side of the frame for bold
-Japanese title text to be added separately. Moody but hopeful cinematic
-atmosphere, wide aspect ratio suitable for a header/banner image.
+横長のバナー用のシネマティックなイラスト。プロフィールアイコンと同じ30代の日本人男性
+（同じ髪型、同じ顔、同じ「安全第一」ワッペン付きジャケットで一貫性を持たせる）が、
+夕暮れ時に自分の大型トラックの横に立ち、腕を組んで地平線の方を見ている。
+表情は怒りや威圧感ではなく、温かみのある決意・希望を感じさせるもの。
+オレンジとピンクの夕焼け空にドラマチックな雲、海沿いの道路に停まったトラック。
+プロフィールアイコンと同じイラストスタイルで統一する。
+左側に余白を残して、後から日本語の大きめタイトル文字を入れられるようにする。
+物悲しさもありつつ希望を感じるシネマティックな雰囲気、バナーに適したワイドの構図。
 ```
 
 **バナーのキャッチコピー案**：既に作った「夢を積んで、今日も走る。」は積載と夢を掛けた良いコピー
