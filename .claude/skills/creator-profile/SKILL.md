@@ -9,8 +9,16 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
 
 ## アカウント名（確定・全プラットフォーム共通）
 - **表示名**：ゆめとら｜トラック運転手の副業挑戦
-- **ハンドル（@id）**：@yumetora（英字表記。空き状況は各プラットフォームで要確認）
 - 「トラ」はひらがな表記に統一（カタカナだと「虎」に見えるのを避け、トーンも柔らかくなるため）
+
+## 開設済みアカウント（2026年9月時点）
+- **X**：https://x.com/yumetora26
+- **Instagram**：https://www.instagram.com/yumetora626/
+- **Threads**：https://www.threads.com/@yumetora626
+- **note**：https://note.com/ynmpp
+- YouTubeは未開設（後日対応予定）
+- 注：Xのハンドルのみ「yumetora26」、他は「yumetora626」で微妙に不一致（表示名は統一済みなので
+  致命的ではない）。他のコンテンツ内でリンクを貼る時は、必ずこの正確なURLをそのまま使うこと。
 
 ## 基本情報（※公開用にぼかした表現。実年齢・実住所などの特定情報はここに書かない）
 - 30代、既婚、子供2人
