@@ -98,6 +98,17 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
   を決めてから撮ると組み立てやすい。
 - 字幕は必須（`video-script`スキル参照：85%は無音で最初に視聴される）。
 
+## YouTube Shorts投稿時のルール（2026年9月確定）
+
+- **Shortsの動画説明文には、毎回必ず他SNSのURLを入れる**（YouTubeチャンネル概要欄だけでなく、
+  動画ごとの説明文にも入れる）。本文の後、ハッシュタグの前後どちらでもいいので以下を追記する：
+  ```
+  X:https://x.com/yumetora26
+  Instagram:https://www.instagram.com/yumetora626/
+  Threads:https://www.threads.com/@yumetora626
+  note:https://note.com/ynmpp
+  ```
+
 ## 出典（2026年9月時点、顔出しなし関連）
 - [The First 3 Seconds: Hook Structures That Stop Scroll on Shorts](https://virvid.ai/blog/first-3-seconds-hook-faceless-shorts-2026)
 - [Best Faceless Video Ideas for TikTok and Reels in 2026](https://www.viibeo.com/blog/best-faceless-video-ideas-for-tiktok-and-reels-in-2026)
