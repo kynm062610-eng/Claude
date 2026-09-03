@@ -60,6 +60,14 @@ description: Use when discussing how to earn money from the video editing side h
 Threadsはフォロワー0の初期、集客特化エンジンとして割り切って使うのが効率的
 （Threads自体には直接収益化の仕組みが弱いため、noteへの送客役に徹する）。
 
+**YouTube Shorts広告収益の現実（2026年8月確認）**
+- 収益化条件：登録者1,000人＋過去90日でShorts視聴回数1,000万回
+- 日本のCPM（1,000再生あたり）は1〜30円程度。100万再生されても数千円〜3万円程度にしかならず、
+  **広告収益だけで生活するのは非現実的**。あくまでShortsは「集客装置」と割り切り、note・
+  アフィリエイト・長尺動画への誘導で稼ぐのが王道（TATAP動線と一致）。
+- YouTube Shortsは検索流入があるため、TikTok（フロー型）と違い、質の高い動画は数ヶ月にわたって
+  再生され続けストック型資産になりやすい。
+
 ## 出典（2026年9月時点）
 - [【2026年】動画編集の副業で案件獲得！月5万円稼ぐロードマップ](https://hatch-inc.jp/column/video-editing-side-job-projects/)
 - [ランサーズ 動画編集 報酬 相場 2026｜報酬相場と単価の上げ方](https://atsoho.com/blog/side-job-video-editing-rate-project)
