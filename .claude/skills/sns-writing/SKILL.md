@@ -19,11 +19,25 @@ Web検索で集めた最新のキャプション/コピーの書き方をまと�
 **Instagram / TikTok**
 - 短く・パンチの効いたフックで始める。絵文字・質問・強めのCTAを使う。
 - 目安は50〜150文字くらいの短さが好まれる。ミニストーリーやトレンド乗っかりが効く。
-- ハッシュタグはInstagramなら5〜10個、ニッチで関連性の高いものに絞る（30個ばら撒く時代は終了）。
+- **ハッシュタグはInstagramなら3〜5個**に厳選、ニッチで関連性の高いものに絞る（2026年9月更新：
+  以前の5〜10個からさらに絞る方向。AIの文脈理解が高度化し、タグを大量につけるとスパム判定の
+  原因になる）。代わりにキャプション本文へ検索キーワードを自然に含めるSEO対策が主流。
   TikTokはニッチ+広めのタグを混ぜる。
+- **キャプションには「送信（シェア）」を促す一言を入れる**（2026年9月確認）。Instagramの評価軸は
+  「保存数」から「送信数（誰かにDM/ストーリーズでシェアされたか）」にシフトしてる。
+  「これパートナーに送って」「知り合いにも教えたい」と思わせるフレーズが効く。
 
 **X (旧Twitter)**
 - 本当にトレンドに乗ってる時だけ1〜2個ハッシュタグをつける程度。基本は文章勝負。
+
+**Threads（2026年9月確認）**
+- 評価される指標は「いいね」より**返信（リプライ）の連鎖**。投稿の最後に必ず
+  「みんなはどう思う？」的なオープンクエスチョン（CTA）を入れて、リプライのハードルを下げる。
+- 「AIが書いたような無機質な正論・まとめ」は伸びにくい。**本人の生々しい体験談・失敗談・
+  リアルな数字**（一次情報）が評価される。
+- 投稿直後の1時間の初速が重要。ついたリプライには即座に返信してスレッドを盛り上げる。
+- フォロワー0の初期は、伸びてる同ジャンル投稿への**質の高い引用・リプライ**でプロフィールへの
+  流入を稼ぐのが定石。
 
 ## プロフィール文（bio）の文字数上限（2026年9月時点）
 
@@ -51,3 +65,5 @@ Web検索で集めた最新のキャプション/コピーの書き方をまと�
 - [Caption Character Limits 2026 — Instagram, X, TikTok, LinkedIn, Facebook](https://wildandfreetools.com/blog/caption-character-limits-2026-instagram-x-tiktok-linkedin/)
 - [Social Media Character Limits 2026: The Complete Cheat Sheet](https://www.limitora.com/blog/social-media-character-limits-2026.html)
 - [Threads Bio Character Limit 2026](https://momentumhive.app/blog/threads-bio-character-limit-2026)
+- NotebookLMリサーチ経由（2026年9月、ユーザー提供）：Instagram/Threads 2026年アルゴリズム
+  攻略まとめ（送信数シフト、Raw Content優遇、Threadsの返信連鎖評価など）

@@ -46,6 +46,20 @@ description: Use when discussing how to earn money from the video editing side h
 - フォロワー2,000人程度でも月5〜8万円の収益化事例はあるが、最低でも3ヶ月〜半年はかかる
 - 「最短」ではなく「じっくり型」。video-script / sns-writing / note-writing スキルで継続する
 
+**動線設計（TATAP理論、2026年9月確認・自分のアカウント構成に当てはめ）**
+
+認知→信頼→共感→成約の役割分担。1つのプラットフォームで無理に売ろうとせず、
+各アカウントに役割を持たせる。
+
+1. **認知**：TikTok/Instagramリール/YouTube Shorts → 送信・シェアを狙った企画で新規層獲得
+2. **信頼**：各プラットフォームのプロフィール欄・ハイライト → 実績・自己紹介で怪しさを排除
+3. **共感**：Threads・Instagramストーリーズ → 日常のリアル・判断の理由・葛藤を発信し、
+   発信者自身のファンにする（`creator-profile`のファン化戦略と連動）
+4. **成約**：note（有料記事）・DM → 個別相談や記事販売へ誘導
+
+Threadsはフォロワー0の初期、集客特化エンジンとして割り切って使うのが効率的
+（Threads自体には直接収益化の仕組みが弱いため、noteへの送客役に徹する）。
+
 ## 出典（2026年9月時点）
 - [【2026年】動画編集の副業で案件獲得！月5万円稼ぐロードマップ](https://hatch-inc.jp/column/video-editing-side-job-projects/)
 - [ランサーズ 動画編集 報酬 相場 2026｜報酬相場と単価の上げ方](https://atsoho.com/blog/side-job-video-editing-rate-project)
