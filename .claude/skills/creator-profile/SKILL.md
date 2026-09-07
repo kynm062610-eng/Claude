@@ -22,7 +22,7 @@ description: Use whenever writing or planning content (SNS投稿, 台本, キャ
 - **Instagram**：https://www.instagram.com/yumetora626/
 - **Threads**：https://www.threads.com/@yumetora626
 - **note**：https://note.com/ynmpp
-- YouTubeは未開設（後日対応予定）
+- **YouTube**：開設済み・Shorts2本投稿済み（2026年9月確認）。チャンネルURLは未共有、判明したら追記する。
 - 注：Xのハンドルのみ「yumetora26」、他は「yumetora626」で微妙に不一致（表示名は統一済みなので
   致命的ではない）。他のコンテンツ内でリンクを貼る時は、必ずこの正確なURLをそのまま使うこと。
 
