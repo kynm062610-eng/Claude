@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+fx_data/
+*.log
+.env
+.claude/settings.local.json
